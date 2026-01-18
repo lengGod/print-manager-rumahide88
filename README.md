@@ -1,59 +1,105 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+#  प्रिंटManager - Sistem Manajemen Percetakan Rumah Ide 88
 
-## About Laravel
+**Solusi modern dan efisien untuk mengelola alur kerja bisnis percetakan Anda dari pesanan hingga laporan.**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+</div>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Rumah Ide 88** adalah aplikasi web yang dirancang khusus untuk membantu bisnis percetakan mendigitalkan dan mengoptimalkan operasi mereka. Dengan antarmuka yang bersih dan intuitif, aplikasi ini memudahkan pengelolaan pesanan, pelanggan, stok bahan, dan pemantauan kinerja bisnis melalui laporan yang komprehensif.
 
-## Learning Laravel
+## ✨ Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+-   **🎨 Manajemen Desain**: Unggah, setujui, dan tolak file desain langsung dari detail pesanan.
+-   **📦 Manajemen Stok Bahan**: Lacak ketersediaan bahan baku dan catat penggunaannya untuk setiap produksi.
+-   **📈 Laporan Komprehensif**: Dapatkan wawasan tentang kinerja bisnis dengan laporan pesanan, pelanggan, produksi, dan keuntungan.
+-   **👤 Manajemen Pengguna & Peran**: Sistem otentikasi dengan peran yang dapat disesuaikan (misalnya, Admin, Desainer, Operator Cetak).
+-   **📊 Dasbor Analitik**: Dasbor utama yang menyediakan ringkasan visual dari metrik bisnis utama.
+-   **🛍️ Manajemen Pesanan**: Alur kerja pesanan yang lengkap, mulai dari pembuatan, pembaruan status produksi, hingga pembuatan faktur.
+-   **👥 Manajemen Pelanggan**: Kelola data pelanggan dan lihat riwayat pesanan mereka dengan mudah.
+-   **🧩 Manajemen Produk**: Atur produk, kategori, dan jenis produk dengan spesifikasi yang dapat disesuaikan.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Laravel Sponsors
+## 🛠️ Tumpukan Teknologi
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   **Backend**: PHP 8.2, Laravel 12
+-   **Frontend**: Tailwind CSS 4, Alpine.js, Vite
+-   **Database**: Dapat dikonfigurasi (default MySQL/MariaDB, dengan dukungan untuk PostgreSQL, SQLite)
+-   **PDF Generation**: `barryvdh/laravel-dompdf` untuk pembuatan faktur.
+-   **Manajemen Peran**: `spatie/laravel-permission`
 
-### Premium Partners
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🚀 Instalasi & Penyiapan
 
-## Contributing
+Ikuti langkah-langkah ini untuk menjalankan aplikasi secara lokal.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prasyarat
 
-## Code of Conduct
+-   PHP >= 8.2
+-   Composer
+-   Node.js & NPM
+-   Database (misalnya, MySQL, MariaDB)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Langkah-langkah
 
-## Security Vulnerabilities
+1.  **Clone Repositori**
+    ```bash
+    git clone https://github.com/username/RumahIde88.git
+    cd RumahIde88
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+2.  **Instal Dependensi**
+    Jalankan perintah ini untuk menginstal semua dependensi PHP dan JS.
+    ```bash
+    composer install
+    npm install
+    ```
 
-## License
+3.  **Konfigurasi Lingkungan**
+    Salin file `.env.example` dan konfigurasikan koneksi database Anda.
+    ```bash
+    cp .env.example .env
+    ```
+    Buka file `.env` dan perbarui variabel berikut:
+    ```
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=rumah_ide_88
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+4.  **Hasilkan Kunci Aplikasi & Migrasi Database**
+    ```bash
+    php artisan key:generate
+    php artisan migrate --seed
+    ```
+    Perintah `--seed` akan mengisi database dengan data sampel (jika seeder dikonfigurasi).
+
+5.  **Kompilasi Aset Frontend**
+    ```bash
+    npm run build
+    ```
+
+6.  **Jalankan Server Pengembangan**
+    ```bash
+    php artisan serve
+    ```
+    Aplikasi sekarang akan dapat diakses di `http://127.0.0.1:8000`.
+
+## 🤝 Berkontribusi
+
+Kontribusi sangat diterima! Silakan _fork_ repositori ini, buat _branch_ fitur baru, dan kirimkan _pull request_.
+
+1.  **Fork** repositori.
+2.  Buat branch fitur baru (`git checkout -b fitur/NamaFiturAnda`).
+3.  _Commit_ perubahan Anda (`git commit -m 'Menambahkan fitur baru'`).
+4.  _Push_ ke branch (`git push origin fitur/NamaFiturAnda`).
+5.  Buka _Pull Request_.
+
+---
+
+Dibuat dengan ❤️ untuk menyederhanakan manajemen percetakan.
