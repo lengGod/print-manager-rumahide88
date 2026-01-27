@@ -38,14 +38,19 @@
                                 <span class="material-symbols-outlined text-xl">edit</span>
                             </a>
                             <form action="{{ route('categories.destroy', $category->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-slate-400 hover:text-rose-600">
-                                    <span class="material-symbols-outlined text-xl">delete</span>
-                                </button>
-                            </form>
-                        </div>
+                                                            id="delete-form-{{ $category->id }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="button"
+                                                                @click.prevent="$dispatch('open-confirm-modal', {
+                                                                    title: 'Hapus Kategori',
+                                                                    message: 'Anda yakin ingin menghapus kategori ini?',
+                                                                    formId: 'delete-form-{{ $category->id }}'
+                                                                })"
+                                                                class="text-slate-400 hover:text-rose-600">
+                                                                <span class="material-symbols-outlined text-xl">delete</span>
+                                                            </button>
+                                                        </form>                        </div>
                     </div>
                     <p class="text-sm text-slate-600 dark:text-slate-400">{{ $category->description }}</p>
                 </div>
@@ -86,14 +91,19 @@
                                     <span class="material-symbols-outlined text-xl">edit</span>
                                 </a>
                                 <form action="{{ route('categories.destroy', $category->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600">
-                                        <span class="material-symbols-outlined text-xl">delete</span>
-                                    </button>
-                                </form>
-                            </div>
+                                                                id="delete-form-{{ $category->id }}">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="button"
+                                                                    @click.prevent="$dispatch('open-confirm-modal', {
+                                                                        title: 'Hapus Kategori',
+                                                                        message: 'Anda yakin ingin menghapus kategori ini?',
+                                                                        formId: 'delete-form-{{ $category->id }}'
+                                                                    })"
+                                                                    class="text-slate-400 hover:text-rose-600">
+                                                                    <span class="material-symbols-outlined text-xl">delete</span>
+                                                                </button>
+                                                            </form>                            </div>
                         </td>
                     </tr>
                 @empty

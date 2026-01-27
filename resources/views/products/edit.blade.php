@@ -46,20 +46,20 @@
                 </div>
 
                 <div>
-                    <label for="base_price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga Dasar</label>
-                    <input type="number" name="base_price" id="base_price"
+                    <label for="price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga</label>
+                    <input type="number" name="price" id="price"
                         class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary"
-                        value="{{ old('base_price', $product->base_price) }}" required min="0">
-                    @error('base_price')
+                        value="{{ old('price', $product->price) }}" required min="0">
+                    @error('price')
                         <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="unit" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Satuan</label>
+                    <label for="unit" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Satuan (Opsional)</label>
                     <input type="text" name="unit" id="unit"
                         class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary"
-                        value="{{ old('unit', $product->unit) }}" required>
+                        value="{{ old('unit', $product->unit) }}">
                     @error('unit')
                         <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
                     @enderror

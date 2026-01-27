@@ -55,6 +55,7 @@ class ReportController extends Controller
     {
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth());
+        $statusFilter = $request->input('status_filter', 'all'); // Get the new filter
 
         $customers = Customer::with(['orders' => function ($query) use ($startDate, $endDate) {
             $query->whereBetween('order_date', [$startDate, $endDate]);
@@ -70,6 +71,13 @@ class ReportController extends Controller
             return $customer;
         });
 
+        // Apply the new status filter
+        if ($statusFilter === 'outstanding_debt') {
+            $customersWithOrders = $customersWithOrders->filter(function ($customer) {
+                return $customer->outstanding_debt > 0;
+            });
+        }
+
         // Calculate totals
         $totalCustomers = $customersWithOrders->count();
         $totalOrders = $customersWithOrders->sum(function ($customer) {
@@ -83,6 +91,7 @@ class ReportController extends Controller
             'customersWithOrders',
             'startDate',
             'endDate',
+            'statusFilter', // Pass the statusFilter to the view
             'totalCustomers',
             'totalOrders',
             'totalAmount',

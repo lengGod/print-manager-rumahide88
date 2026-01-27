@@ -19,6 +19,20 @@
             @csrf
 
             <div class="mb-4">
+                <label for="category_id" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kategori</label>
+                <select id="category_id" name="category_id" required
+                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white">
+                    <option value="">Pilih Kategori</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                @error('category_id')
+                    <p class="text-sm text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama</label>
                 <input type="text" id="name" name="name" required
                     class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white"

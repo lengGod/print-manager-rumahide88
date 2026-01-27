@@ -12,7 +12,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('productType.category')->orderBy('name')->paginate(10);
+        $products = Product::with(['productType', 'category'])->orderBy('name')->paginate(10);
         return view('products.index', compact('products'));
     }
 
@@ -25,11 +25,11 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'product_type_id' => 'required|exists:product_types,id',
             'name' => 'required|string|max:255',
-            'base_price' => 'required|numeric|min:0',
-            'unit' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0',
+            'unit' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'specifications' => 'array',
             'specifications.*.name' => 'required|string|max:100',
@@ -37,13 +37,10 @@ class ProductController extends Controller
             'specifications.*.additional_price' => 'required|numeric|min:0',
         ]);
 
-        $product = Product::create($request->only([
-            'product_type_id',
-            'name',
-            'base_price',
-            'unit',
-            'description'
-        ]));
+        $productType = ProductType::find($validatedData['product_type_id']);
+        $validatedData['category_id'] = $productType->category_id;
+
+        $product = Product::create($validatedData);
 
         if ($request->has('specifications')) {
             foreach ($request->specifications as $spec) {
@@ -76,11 +73,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'product_type_id' => 'required|exists:product_types,id',
             'name' => 'required|string|max:255',
-            'base_price' => 'required|numeric|min:0',
-            'unit' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0',
+            'unit' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'specifications' => 'array',
             'specifications.*.name' => 'required|string|max:100',
@@ -88,13 +85,10 @@ class ProductController extends Controller
             'specifications.*.additional_price' => 'required|numeric|min:0',
         ]);
 
-        $product->update($request->only([
-            'product_type_id',
-            'name',
-            'base_price',
-            'unit',
-            'description'
-        ]));
+        $productType = ProductType::find($validatedData['product_type_id']);
+        $validatedData['category_id'] = $productType->category_id;
+
+        $product->update($validatedData);
 
         // Delete existing specifications
         ProductSpecification::where('product_id', $product->id)->delete();

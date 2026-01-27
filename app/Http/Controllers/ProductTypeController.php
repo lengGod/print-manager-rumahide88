@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\ProductType;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,7 @@ class ProductTypeController extends Controller
      */
     public function index()
     {
-        $productTypes = ProductType::latest()->paginate(10);
+        $productTypes = ProductType::with('category')->latest()->paginate(10);
         return view('product-types.index', compact('productTypes'));
     }
 
@@ -21,7 +22,8 @@ class ProductTypeController extends Controller
      */
     public function create()
     {
-        return view('product-types.create');
+        $categories = Category::all();
+        return view('product-types.create', compact('categories'));
     }
 
     /**
@@ -30,6 +32,7 @@ class ProductTypeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255|unique:product_types',
             'description' => 'nullable|string',
         ]);
@@ -53,7 +56,8 @@ class ProductTypeController extends Controller
      */
     public function edit(ProductType $productType)
     {
-        return view('product-types.edit', compact('productType'));
+        $categories = Category::all();
+        return view('product-types.edit', compact('productType', 'categories'));
     }
 
     /**
@@ -62,6 +66,7 @@ class ProductTypeController extends Controller
     public function update(Request $request, ProductType $productType)
     {
         $request->validate([
+            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255|unique:product_types,name,' . $productType->id,
             'description' => 'nullable|string',
         ]);

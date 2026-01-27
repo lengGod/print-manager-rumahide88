@@ -39,7 +39,8 @@ class OrderController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'items.*.specifications' => 'required|array',
+            'items.*.size' => 'nullable|string|max:255',
+            'items.*.specifications' => 'nullable|array',
             'discount' => 'nullable|numeric|min:0',
             'paid_amount' => 'required|numeric|min:0', // Added validation
             'payment_status' => 'required|in:unpaid,partial,paid', // Added validation
@@ -72,13 +73,26 @@ class OrderController extends Controller
                         }
                     }
                 }
-
+                
                 $subtotal = $itemPrice * $itemData['quantity'];
+                $size = null;
+                if ($product->unit === 'meter' && !empty($itemData['size'])) {
+                    $size = $itemData['size'];
+                    $dimensions = explode('x', $size);
+                    if (count($dimensions) === 2) {
+                        $width = floatval(trim($dimensions[0]));
+                        $height = floatval(trim($dimensions[1]));
+                        $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
+                        $subtotal = $itemPrice * $itemData['quantity'] * $area;
+                    }
+                }
+                
                 $totalAmount += $subtotal;
 
                 $itemsToStore[] = [
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
+                    'size' => $size,
                     'price' => $itemPrice, // Price per unit including specifications
                     'subtotal' => $subtotal,
                     'specifications' => json_encode($selectedSpecifications), // Store as JSON string
@@ -160,6 +174,7 @@ class OrderController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.size' => 'nullable|string|max:255',
             'items.*.specifications' => 'nullable|array', // nullable as it might be empty
             'items.*.item_id' => 'nullable|exists:order_items,id', // for existing items
             'discount' => 'nullable|numeric|min:0',
@@ -194,12 +209,25 @@ class OrderController extends Controller
                 }
 
                 $subtotal = $itemPrice * $itemData['quantity'];
+                $size = null;
+                if ($product->unit === 'meter' && !empty($itemData['size'])) {
+                    $size = $itemData['size'];
+                    $dimensions = explode('x', $size);
+                    if (count($dimensions) === 2) {
+                        $width = floatval(trim($dimensions[0]));
+                        $height = floatval(trim($dimensions[1]));
+                        $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
+                        $subtotal = $itemPrice * $itemData['quantity'] * $area;
+                    }
+                }
+                
                 $totalAmount += $subtotal;
 
                 // Prepare item data for update/create
                 $preparedItemData = [
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
+                    'size' => $size,
                     'price' => $itemPrice,
                     'subtotal' => $subtotal,
                     'specifications' => json_encode($selectedSpecifications),
@@ -313,10 +341,13 @@ class OrderController extends Controller
         return back()->with('success', 'Order status updated successfully.');
     }
 
-    public function invoice(Order $order)
+    public function invoice(Request $request, Order $order)
     {
         $order->load('customer', 'items.product');
 
-        return view('orders.invoice', compact('order'));
+        // Set the locale for translation within the print blade
+        app()->setLocale($request->query('lang') === 'en' ? 'en' : 'id');
+
+        return view('orders.print_invoice', compact('order'));
     }
 }

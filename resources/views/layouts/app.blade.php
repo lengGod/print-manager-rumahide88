@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>@yield('title', 'PrintManager - Sistem Manajemen Percetakan')</title>
+    <title>@yield('title', 'RumahIde88 - Sistem Manajemen Percetakan')</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
@@ -45,7 +45,8 @@
     @stack('styles')
 </head>
 
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen"
+    x-data="themeSwitcher()" x-init="init()" :class="{ 'dark': isDark }">
     <div x-data="{ sidebarOpen: window.innerWidth >= 768 }" x-init="() => {
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 768) {
@@ -57,9 +58,8 @@
     }" class="flex">
         <!-- Sidebar Backdrop -->
         <div x-show="sidebarOpen && window.innerWidth < 768" x-on:click="sidebarOpen = false"
-            x-transition:enter="transition-opacity ease-linear duration-300"
-            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-opacity ease-linear duration-300"
+            x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
             class="fixed inset-0 bg-slate-900/50 z-20" aria-hidden="true"></div>
 
@@ -70,9 +70,7 @@
                    md:sticky md:top-0 md:translate-x-0 md:flex"
             :class="{ 'translate-x-0': sidebarOpen }">
             <div class="p-6 flex items-center gap-3">
-                <div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined">print</span>
-                </div>
+                <img src="{{ asset('assets/logo88.jpeg') }}" alt="Logo" class="size-10 rounded-lg object-contain">
                 <div class="flex flex-col">
                     <h1 class="text-slate-900 dark:text-white text-base font-bold leading-none">Rumah Ide 88</h1>
                     <p class="text-slate-500 dark:text-slate-400 text-xs font-medium">Konsol Admin</p>
@@ -160,6 +158,11 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
+                    <button x-on:click="toggle()" type="button"
+                        class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <span class="material-symbols-outlined" x-show="!isDark">dark_mode</span>
+                        <span class="material-symbols-outlined" x-show="isDark">light_mode</span>
+                    </button>
                     <button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg relative">
                         <span class="material-symbols-outlined">notifications</span>
                         <span
@@ -186,7 +189,31 @@
         </main>
     </div>
 
+    <script>
+        function themeSwitcher() {
+            return {
+                isDark: false,
+                init() {
+                    this.isDark = localStorage.getItem('darkMode') === 'true';
+                    this.updateHtmlClass();
+                },
+                toggle() {
+                    this.isDark = !this.isDark;
+                    localStorage.setItem('darkMode', this.isDark);
+                    this.updateHtmlClass();
+                },
+                updateHtmlClass() {
+                    if (this.isDark) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                }
+            }
+        }
+    </script>
     @stack('scripts')
+    @include('partials.confirm-modal')
 </body>
 
 </html>

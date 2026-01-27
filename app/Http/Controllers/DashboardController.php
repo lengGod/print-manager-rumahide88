@@ -18,7 +18,8 @@ class DashboardController extends Controller
         $todayOrdersCount = Order::whereDate('order_date', Carbon::today())->count();
 
         // Get orders in progress
-        $inProgressOrdersCount = Order::whereIn('status', ['Proses Desain', 'Proses Cetak', 'Finishing'])->count();
+        // Included 'Menunggu Desain' and 'Siap Diambil' as per dashboard display
+        $inProgressOrdersCount = Order::whereIn('status', ['Menunggu Desain', 'Proses Desain', 'Proses Cetak', 'Finishing', 'Siap Diambil'])->count();
 
         // Get completed orders
         $completedOrdersCount = Order::where('status', 'Selesai')->count();

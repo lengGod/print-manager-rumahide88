@@ -27,7 +27,15 @@
                         Tanggal</label>
                     <input type="date" name="end_date" id="end_date"
                         value="{{ \Carbon\Carbon::parse($endDate)->format('Y-m-d') }}"
+                        class="mt-1 block w-full rounded-md border-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                </div>
+                <div>
+                    <label for="status_filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status Pelanggan</label>
+                    <select name="status_filter" id="status_filter"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                        <option value="all" {{ request('status_filter') == 'all' ? 'selected' : '' }}>Semua</option>
+                        <option value="outstanding_debt" {{ request('status_filter') == 'outstanding_debt' ? 'selected' : '' }}>Memiliki Piutang</option>
+                    </select>
                 </div>
                 <button type="submit"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Filter</button>
@@ -41,7 +49,7 @@
                 {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                 <thead class="bg-gray-50 dark:bg-slate-700">
                     <tr>
@@ -74,7 +82,9 @@
                     @forelse ($customersWithOrders as $customer)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                {{ $customer->name }}
+                                <a href="{{ route('customers.show', $customer->id) }}" class="text-primary hover:underline">
+                                    {{ $customer->name }}
+                                </a>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                                 {{ $customer->email }}
@@ -90,7 +100,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                                 Rp. {{ number_format($customer->total_paid_amount, 0, ',', '.') }}
-                            </td>
+                                </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm @if($customer->outstanding_debt > 0) text-rose-600 font-semibold @else text-gray-500 @endif dark:text-gray-300">
                                 Rp. {{ number_format($customer->outstanding_debt, 0, ',', '.') }}
                             </td>

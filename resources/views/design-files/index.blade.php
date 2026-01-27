@@ -30,10 +30,16 @@
                                 <span class="material-symbols-outlined text-xl">download</span>
                             </a>
                             <form action="{{ route('design-files.destroy', $file->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus file desain ini?')">
+                                id="delete-form-{{ $file->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                <button type="button"
+                                    @click.prevent="$dispatch('open-confirm-modal', {
+                                        title: 'Hapus File Desain',
+                                        message: 'Anda yakin ingin menghapus file desain ini?',
+                                        formId: 'delete-form-{{ $file->id }}'
+                                    })"
+                                    class="text-slate-400 hover:text-rose-600">
                                     <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </form>
@@ -127,10 +133,16 @@
                                     <span class="material-symbols-outlined text-xl">download</span>
                                 </a>
                                 <form action="{{ route('design-files.destroy', $file->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus file desain ini?')">
+                                    id="delete-form-desktop-{{ $file->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                    <button type="button"
+                                        @click.prevent="$dispatch('open-confirm-modal', {
+                                            title: 'Hapus File Desain',
+                                            message: 'Anda yakin ingin menghapus file desain ini?',
+                                            formId: 'delete-form-desktop-{{ $file->id }}'
+                                        })"
+                                        class="text-slate-400 hover:text-rose-600">
                                         <span class="material-symbols-outlined text-xl">delete</span>
                                     </button>
                                 </form>

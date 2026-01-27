@@ -38,10 +38,16 @@
                                 <span class="material-symbols-outlined text-xl">edit</span>
                             </a>
                             <form action="{{ route('materials.destroy', $material->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus bahan ini?')">
+                                id="delete-form-{{ $material->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                <button type="button"
+                                    @click.prevent="$dispatch('open-confirm-modal', {
+                                        title: 'Hapus Bahan',
+                                        message: 'Anda yakin ingin menghapus bahan ini?',
+                                        formId: 'delete-form-{{ $material->id }}'
+                                    })"
+                                    class="text-slate-400 hover:text-rose-600">
                                     <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </form>
@@ -116,10 +122,16 @@
                                     <span class="material-symbols-outlined text-xl">edit</span>
                                 </a>
                                 <form action="{{ route('materials.destroy', $material->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus bahan ini?')">
+                                    id="delete-form-desktop-{{ $material->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                    <button type="button"
+                                        @click.prevent="$dispatch('open-confirm-modal', {
+                                            title: 'Hapus Bahan',
+                                            message: 'Anda yakin ingin menghapus bahan ini?',
+                                            formId: 'delete-form-desktop-{{ $material->id }}'
+                                        })"
+                                        class="text-slate-400 hover:text-rose-600">
                                         <span class="material-symbols-outlined text-xl">delete</span>
                                     </button>
                                 </form>

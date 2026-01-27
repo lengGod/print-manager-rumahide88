@@ -116,7 +116,7 @@ $itemSpecifications = is_string($item->specifications)
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label
                                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produk</label>
@@ -125,7 +125,8 @@ $itemSpecifications = is_string($item->specifications)
                                         data-item-id="{{ $loop->iteration }}" required>
                                         <option value="">Pilih Produk</option>
                                         @foreach ($products as $product)
-                                            <option value="{{ $product->id }}" data-price="{{ $product->base_price }}"
+                                            <option value="{{ $product->id }}" data-price="{{ $product->price }}"
+                                                data-unit="{{ $product->unit }}"
                                                 {{ $item->product_id == $product->id ? 'selected' : '' }}>
                                                 {{ $product->name }}</option>
                                         @endforeach
@@ -139,7 +140,17 @@ $itemSpecifications = is_string($item->specifications)
                                         class="quantity-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white"
                                         data-item-id="{{ $loop->iteration }}" required>
                                 </div>
-                                <div class="md:col-span-2">
+                                <div class="size-container" data-item-id="{{ $loop->iteration }}"
+                                    style="display: {{ $item->product->unit === 'meter' ? 'block' : 'none' }};">
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ukuran
+                                        (cm)</label>
+                                    <input type="text" name="items[{{ $loop->iteration }}][size]"
+                                        placeholder="Contoh: 100x100"
+                                        value="{{ old('items.' . $loop->iteration . '.size', $item->size) }}"
+                                        class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white"
+                                        data-item-id="{{ $loop->iteration }}">
+                                </div>
+                                <div class="md:col-span-3">
                                     <label
                                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Spesifikasi</label>
                                     <div class="specifications-container" data-item-id="{{ $loop->iteration }}">
@@ -163,9 +174,9 @@ $itemSpecifications = is_string($item->specifications)
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" name="items[{{ $loop->iteration }}][specifications]"
-                                class="specifications-input" data-item-id="{{ $loop->iteration }}"
-                                value="{{ json_encode($itemSpecifications) }}">
+                            <div class="specifications-hidden-inputs" data-item-id="{{ $loop->iteration }}">
+                                <!-- Hidden inputs for specifications will be added here dynamically -->
+                            </div>
                             <input type="hidden" name="items[{{ $loop->iteration }}][item_id]"
                                 value="{{ $item->id }}">
                         </div>
@@ -211,14 +222,20 @@ $itemSpecifications = is_string($item->specifications)
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let itemCount = {{ $order->items->count() }};
             const products = @json($products);
             const initialOrderItems = @json($order->items);
 
             // Add item button
             document.getElementById('add-item').addEventListener('click', function() {
-                itemCount++;
-                addItem(itemCount);
+                let maxId = 0;
+                document.querySelectorAll('.order-item').forEach(item => {
+                    const itemId = parseInt(item.dataset.itemId, 10);
+                    if (itemId > maxId) {
+                        maxId = itemId;
+                    }
+                });
+                const newItemId = maxId + 1;
+                addItem(newItemId);
                 updateOrderSummary();
             });
 
@@ -244,26 +261,32 @@ $itemSpecifications = is_string($item->specifications)
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produk</label>
                             <select name="items[${currentCount}][product_id]" class="product-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${currentCount}" required>
                                 <option value="">Pilih Produk</option>
-                                ${products.map(product => `<option value="${product.id}" data-price="${product.base_price}">${product.name}</option>`).join('')}
+                                ${products.map(product => `<option value="${product.id}" data-price="${product.price}" data-unit="${product.unit}">${product.name}</option>`).join('')}
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kuantitas</label>
                             <input type="number" name="items[${currentCount}][quantity]" min="1" value="1" class="quantity-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${currentCount}" required>
                         </div>
-                        <div class="md:col-span-2">
+                         <div class="size-container" data-item-id="${currentCount}" style="display: none;">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ukuran (cm)</label>
+                            <input type="text" name="items[${currentCount}][size]" placeholder="Contoh: 100x100" class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${currentCount}">
+                        </div>
+                        <div class="md:col-span-3">
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Spesifikasi</label>
                             <div class="specifications-container" data-item-id="${currentCount}">
                                 <!-- Specifications will be added here when a product is selected -->
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="items[${currentCount}][specifications]" class="specifications-input" data-item-id="${currentCount}" value="[]">
+                    <div class="specifications-hidden-inputs" data-item-id="${currentCount}">
+                        <!-- Hidden inputs for specifications will be added here dynamically -->
+                    </div>
                 </div>
                 `;
 
@@ -278,6 +301,16 @@ $itemSpecifications = is_string($item->specifications)
                 itemElement.querySelector('.product-select').addEventListener('change', function() {
                     const productId = this.value;
                     const itemId = this.dataset.itemId;
+                    const selectedOption = this.options[this.selectedIndex];
+                    const unit = selectedOption.dataset.unit;
+                    const sizeContainer = itemElement.querySelector(
+                        `.size-container[data-item-id="${itemId}"]`);
+
+                    if (unit === 'meter') {
+                        sizeContainer.style.display = 'block';
+                    } else {
+                        sizeContainer.style.display = 'none';
+                    }
 
                     // Update specifications
                     const specificationsContainer = itemElement.querySelector(
@@ -310,6 +343,13 @@ $itemSpecifications = is_string($item->specifications)
                 // Quantity change event
                 itemElement.querySelector('.quantity-input').addEventListener('input', updateOrderSummary);
 
+                // Size change event
+                const sizeInput = itemElement.querySelector('.size-input');
+                if (sizeInput) {
+                    sizeInput.addEventListener('input', updateOrderSummary);
+                }
+
+
                 // Remove item button
                 itemElement.querySelector('.remove-item').addEventListener('click', function() {
                     this.closest('.order-item').remove();
@@ -334,18 +374,34 @@ $itemSpecifications = is_string($item->specifications)
                     const productId = item.querySelector('.product-select').value;
                     const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
 
+                    const sizeInput = item.querySelector('.size-input');
+                    const sizeValue = sizeInput ? sizeInput.value : '';
+                    const productSelect = item.querySelector('.product-select');
+                    const selectedOption = productSelect.options[productSelect.selectedIndex];
+                    const unit = selectedOption ? selectedOption.dataset.unit : null;
+
                     if (productId) {
                         const product = products.find(p => p.id == productId);
                         if (product) {
-                            let itemPrice = parseFloat(product.base_price) || parseFloat(product.price) ||
-                            0;
+                            let itemPrice = parseFloat(product.price) || 0;
 
                             // Add specification prices
                             item.querySelectorAll('.spec-checkbox:checked').forEach(checkbox => {
                                 itemPrice += parseFloat(checkbox.dataset.price) || 0;
                             });
 
-                            subtotal += itemPrice * quantity;
+                            if (unit === 'meter' && sizeValue) {
+                                const dimensions = sizeValue.split('x').map(d => parseFloat(d.trim()));
+                                if (dimensions.length === 2 && !isNaN(dimensions[0]) && !isNaN(dimensions[
+                                        1])) {
+                                    const widthInMeters = dimensions[0] / 100;
+                                    const heightInMeters = dimensions[1] / 100;
+                                    const area = widthInMeters * heightInMeters;
+                                    subtotal += itemPrice * area * quantity;
+                                }
+                            } else {
+                                subtotal += itemPrice * quantity;
+                            }
                         }
                     }
                 });
@@ -371,15 +427,20 @@ $itemSpecifications = is_string($item->specifications)
                 // Update hidden specifications inputs
                 document.querySelectorAll('.order-item').forEach(item => {
                     const itemId = item.dataset.itemId;
-                    const specificationsInput = item.querySelector(
-                        `.specifications-input[data-item-id="${itemId}"]`);
+                    const hiddenInputsContainer = item.querySelector(
+                        `.specifications-hidden-inputs[data-item-id="${itemId}"]`);
+                    hiddenInputsContainer.innerHTML = ''; // Clear previous hidden inputs
 
-                    if (specificationsInput) {
-                        const checkedSpecs = Array.from(item.querySelectorAll('.spec-checkbox:checked'))
-                            .map(
-                                cb => cb.value);
-                        specificationsInput.value = JSON.stringify(checkedSpecs);
-                    }
+                    const checkedSpecs = Array.from(item.querySelectorAll('.spec-checkbox:checked')).map(
+                        cb => cb.value);
+
+                    checkedSpecs.forEach(specId => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = `items[${itemId}][specifications][]`;
+                        input.value = specId;
+                        hiddenInputsContainer.appendChild(input);
+                    });
                 });
             }
 

@@ -64,10 +64,10 @@
                 </div>
 
                 <div>
-                    <label for="unit" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Satuan</label>
+                    <label for="unit" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Satuan (Opsional)</label>
                     <input type="text" name="unit" id="unit"
                         class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
-                        value="{{ old('unit') }}" required>
+                        value="{{ old('unit') }}">
                     @error('unit')
                         <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
                     @enderror

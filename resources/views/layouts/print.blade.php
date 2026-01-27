@@ -1,49 +1,54 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>@yield('title', 'Cetak Laporan')</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Cetak Dokumen')</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-
-        /* Hide elements not needed for print */
         @media print {
-            .no-print {
-                display: none !important;
-            }
-
             body {
-                background-color: #fff !important;
-                color: #000 !important;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background-color: #fff; /* Ensure white background for print */
             }
-
-            table {
+            .no-print {
+                display: none;
+            }
+            .invoice-container {
                 width: 100%;
-                border-collapse: collapse;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0; /* Remove padding from invoice-container itself for print */
             }
-
-            th,
-            td {
-                border: 1px solid #000;
-                padding: 8px;
+            .invoice-container > div {
+                padding: 0 32px; /* Re-add horizontal padding to direct children */
+            }
+            .invoice-container .flex.justify-between.items-start.border-b {
+                padding-top: 32px; /* Add top padding to the header for print */
+            }
+            .invoice-container .mb-10 {
+                margin-bottom: 0 !important; /* Adjust margins for print */
+            }
+            .invoice-container .w-full.overflow-x-auto.mb-10 {
+                margin-bottom: 0 !important;
+            }
+            .invoice-container .flex.justify-end.mb-10 {
+                margin-bottom: 0 !important;
             }
         }
     </style>
-    @stack('styles')
 </head>
-
-<body>
-    <div class="container mx-auto p-4">
+<body class="bg-gray-100">
+    <div>
+        <div class="flex justify-end mb-4 no-print">
+            <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Cetak</button>
+            <a href="{{ url()->previous() }}" class="px-4 py-2 ml-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Kembali</a>
+        </div>
         @yield('content')
     </div>
-    @stack('scripts')
 </body>
-
 </html>

@@ -36,7 +36,8 @@
                     </div>
                     <div>
                         <label for="order_date"
-                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal Pesanan</label>
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal
+                            Pesanan</label>
                         <input type="date" id="order_date" name="order_date" value="{{ date('Y-m-d') }}" required
                             class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white">
                     </div>
@@ -54,13 +55,16 @@
                     </div>
                     <div>
                         <label for="paid_amount"
-                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Jumlah Dibayar (Rp)</label>
-                        <input type="number" id="paid_amount" name="paid_amount" min="0" step="0.01" value="0"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Jumlah Dibayar
+                            (Rp)</label>
+                        <input type="number" id="paid_amount" name="paid_amount" min="0" step="0.01"
+                            value="0"
                             class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white">
                     </div>
                     <div>
                         <label for="payment_status"
-                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status Pembayaran</label>
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status
+                            Pembayaran</label>
                         <select id="payment_status" name="payment_status" required
                             class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white">
                             <option value="unpaid">Belum Lunas</option>
@@ -145,19 +149,23 @@
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produk</label>
                             <select name="items[${itemCount}][product_id]" class="product-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}" required>
                                 <option value="">Pilih Produk</option>
-                                ${products.map(product => `<option value="${product.id}" data-price="${product.price}">${product.name}</option>`).join('')}
+                                ${products.map(product => `<option value="${product.id}" data-price="${product.price}" data-unit="${product.unit}">${product.name}</option>`).join('')}
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kuantitas</label>
                             <input type="number" name="items[${itemCount}][quantity]" min="1" value="1" class="quantity-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}" required>
                         </div>
-                        <div class="md:col-span-2">
+                         <div class="size-container" data-item-id="${itemCount}" style="display: none;">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ukuran (cm)</label>
+                            <input type="text" name="items[${itemCount}][size]" placeholder="Contoh: 100x100" class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}">
+                        </div>
+                        <div class="md:col-span-3">
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Spesifikasi</label>
                             <div class="specifications-container" data-item-id="${itemCount}">
                                 <!-- Specifications will be added here when a product is selected -->
@@ -179,6 +187,16 @@
                 newItem.querySelector('.product-select').addEventListener('change', function() {
                     const productId = this.value;
                     const itemId = this.dataset.itemId;
+                    const selectedOption = this.options[this.selectedIndex];
+                    const unit = selectedOption.dataset.unit;
+                    const sizeContainer = document.querySelector(
+                        `.size-container[data-item-id="${itemId}"]`);
+
+                    if (unit === 'meter') {
+                        sizeContainer.style.display = 'block';
+                    } else {
+                        sizeContainer.style.display = 'none';
+                    }
 
                     // Update specifications
                     const specificationsContainer = document.querySelector(
@@ -211,6 +229,12 @@
                 // Quantity change event
                 newItem.querySelector('.quantity-input').addEventListener('input', updateOrderSummary);
 
+                // Size change event
+                const sizeInput = newItem.querySelector('.size-input');
+                if (sizeInput) {
+                    sizeInput.addEventListener('input', updateOrderSummary);
+                }
+
                 // Remove item button
                 newItem.querySelector('.remove-item').addEventListener('click', function() {
                     this.closest('.order-item').remove();
@@ -229,6 +253,12 @@
                 document.querySelectorAll('.order-item').forEach(item => {
                     const productId = item.querySelector('.product-select').value;
                     const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
+                    const sizeInput = item.querySelector('.size-input');
+                    const sizeValue = sizeInput ? sizeInput.value : '';
+                    const selectedOption = item.querySelector('.product-select').options[item.querySelector(
+                        '.product-select').selectedIndex];
+                    const unit = selectedOption.dataset.unit;
+
 
                     if (productId) {
                         const product = products.find(p => p.id == productId);
@@ -240,7 +270,18 @@
                                 itemPrice += parseFloat(checkbox.dataset.price);
                             });
 
-                            subtotal += itemPrice * quantity;
+                            if (unit === 'meter' && sizeValue) {
+                                const dimensions = sizeValue.split('x').map(d => parseFloat(d.trim()));
+                                if (dimensions.length === 2 && !isNaN(dimensions[0]) && !isNaN(dimensions[
+                                        1])) {
+                                    const widthInMeters = dimensions[0] / 100;
+                                    const heightInMeters = dimensions[1] / 100;
+                                    const area = widthInMeters * heightInMeters;
+                                    subtotal += itemPrice * area * quantity;
+                                }
+                            } else {
+                                subtotal += itemPrice * quantity;
+                            }
                         }
                     }
                 });

@@ -68,29 +68,29 @@
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                             @forelse($orders as $order)
                                 <tr>
-                                    <td class="px-6 py-4 text-sm font-medium">{{ $order->order_number }}</td>
-                                    <td class="px-6 py-4 text-sm">{{ $order->order_date->format('d M Y') }}</td>
-                                    <td class="px-6 py-4 text-sm">Rp {{ number_format($order->final_amount, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 text-sm">{{ $order->status }}</td>
+                                    <td class="px-6 py-4 text-sm font-medium text-slate-800 dark:text-slate-300">{{ $order->order_number }}</td>
+                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $order->order_date->format('d M Y') }}</td>
+                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Rp {{ number_format($order->final_amount, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $order->status }}</td>
                                     <td class="px-6 py-4 text-sm">
                                         @switch($order->payment_status)
                                             @case('paid')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-700">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">
                                                     Lunas
                                                 </span>
                                             @break
                                             @case('partial')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-700">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400">
                                                     Sebagian
                                                 </span>
                                             @break
                                             @case('unpaid')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-rose-100 text-rose-700">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400">
                                                     Belum Lunas
                                                 </span>
                                             @break
                                             @default
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                                                     {{ $order->payment_status }}
                                                 </span>
                                         @endswitch

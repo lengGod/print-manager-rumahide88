@@ -38,10 +38,16 @@
                                 <span class="material-symbols-outlined text-xl">edit</span>
                             </a>
                             <form action="{{ route('customers.destroy', $customer->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin?')">
+                                id="delete-form-{{ $customer->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                <button type="button"
+                                    @click.prevent="$dispatch('open-confirm-modal', {
+                                        title: 'Hapus Pelanggan',
+                                        message: 'Anda yakin ingin menghapus pelanggan ini?',
+                                        formId: 'delete-form-{{ $customer->id }}'
+                                    })"
+                                    class="text-slate-400 hover:text-rose-600">
                                     <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </form>
@@ -97,10 +103,16 @@
                                     <span class="material-symbols-outlined text-xl">edit</span>
                                 </a>
                                 <form action="{{ route('customers.destroy', $customer->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin?')">
+                                    id="delete-form-desktop-{{ $customer->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                    <button type="button"
+                                        @click.prevent="$dispatch('open-confirm-modal', {
+                                            title: 'Hapus Pelanggan',
+                                            message: 'Anda yakin ingin menghapus pelanggan ini?',
+                                            formId: 'delete-form-desktop-{{ $customer->id }}'
+                                        })"
+                                        class="text-slate-400 hover:text-rose-600">
                                         <span class="material-symbols-outlined text-xl">delete</span>
                                     </button>
                                 </form>
@@ -121,7 +133,8 @@
     @if ($customers->hasPages())
         <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div class="text-sm text-slate-500 dark:text-slate-400">
-                Menampilkan {{ $customers->firstItem() }} hingga {{ $customers->lastItem() }} dari
+                Menampilkan {{ $customers->firstItem() }} hingga {{
+                $customers->lastItem() }} dari
                 {{ $customers->total() }} hasil
             </div>
             {{ $customers->links() }}

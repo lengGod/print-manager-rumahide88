@@ -27,7 +27,10 @@
                 <div
                     class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="font-bold text-slate-900 dark:text-white">{{ $productType->name }}</span>
+                        <div>
+                            <span class="font-bold text-slate-900 dark:text-white">{{ $productType->name }}</span>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $productType->category->name }}</p>
+                        </div>
                         <div class="flex items-center gap-2">
                             <a href="{{ route('product-types.show', $productType->id) }}"
                                 class="text-slate-400 hover:text-primary">
@@ -38,10 +41,16 @@
                                 <span class="material-symbols-outlined text-xl">edit</span>
                             </a>
                             <form action="{{ route('product-types.destroy', $productType->id) }}" method="POST"
-                                onsubmit="return confirm('Apakah Anda yakin?')">
+                                id="delete-form-{{ $productType->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                <button type="button"
+                                    @click.prevent="$dispatch('open-confirm-modal', {
+                                        title: 'Hapus Tipe Produk',
+                                        message: 'Anda yakin ingin menghapus tipe produk ini?',
+                                        formId: 'delete-form-{{ $productType->id }}'
+                                    })"
+                                    class="text-slate-400 hover:text-rose-600">
                                     <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </form>
@@ -63,6 +72,7 @@
             <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50">
                     <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</th>
                     <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Deskripsi</th>
                     <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
                 </tr>
@@ -72,6 +82,9 @@
                     <tr>
                         <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">
                             {{ $productType->name }}</td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                            {{ $productType->category->name }}
+                        </td>
                         <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                             {{ $productType->description }}
                         </td>
@@ -86,10 +99,16 @@
                                     <span class="material-symbols-outlined text-xl">edit</span>
                                 </a>
                                 <form action="{{ route('product-types.destroy', $productType->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin?')">
+                                    id="delete-form-desktop-{{ $productType->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600">
+                                    <button type="button"
+                                        @click.prevent="$dispatch('open-confirm-modal', {
+                                            title: 'Hapus Tipe Produk',
+                                            message: 'Anda yakin ingin menghapus tipe produk ini?',
+                                            formId: 'delete-form-desktop-{{ $productType->id }}'
+                                        })"
+                                        class="text-slate-400 hover:text-rose-600">
                                         <span class="material-symbols-outlined text-xl">delete</span>
                                     </button>
                                 </form>
@@ -98,7 +117,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
                             Tidak ada tipe produk yang ditemukan
                         </td>
                     </tr>
