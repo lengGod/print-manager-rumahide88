@@ -1,23 +1,18 @@
 {
     "version": 2,
-    "outputDirectory": "public",
     "framework": null,
-    "builds": [
-        {
-            "src": "public/index.php",
-            "use": "vercel-php"
+    "functions": {
+        "public/index.php": {
+            "runtime": "vercel-php@0.7.1"
         }
-    ],
+    },
     "routes": [
         {
-            "src": "/(css|js|assets|storage)/(.*)",
-            "dest": "/public/$1/$2"
+            "src": "/(css|js|images|fonts|storage|build|assets|favicon.ico|robots.txt)(.*)",
+            "dest": "/public/$1$2"
         },
         {
-            "handle": "filesystem"
-        },
-        {
-            "src": "/.*",
+            "src": "/(.*)",
             "dest": "/public/index.php"
         }
     ],
@@ -27,6 +22,7 @@
         "APP_ENV": "production",
         "APP_DEBUG": "false",
         "APP_URL": "https://rumahide88.vercel.app",
+        "ASSET_URL": "https://rumahide88.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
