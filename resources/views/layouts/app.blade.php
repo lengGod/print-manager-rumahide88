@@ -117,6 +117,11 @@
                     <span class="material-symbols-outlined">format_paint</span>
                     <span class="text-sm font-medium">Bahan</span>
                 </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('external-purchases*') ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors' }}"
+                    href="{{ route('external-purchases.index') }}">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span class="text-sm font-medium">Pembelian Eksternal</span>
+                </a>
                 <a class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('reports*') ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors' }}"
                     href="{{ route('reports.index') }}">
                     <span class="material-symbols-outlined">bar_chart</span>
