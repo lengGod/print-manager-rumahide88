@@ -22,7 +22,7 @@
         }
     ],
     "env": {
-        "APP_KEY": "base64:YOUR_GENERATED_KEY_HERE",
+        "APP_KEY": "base64:3g4HFye2AIpj78jgdPj+E6r3qoEZGdjiK/QtnKXTahY=",
         "APP_NAME": "RumahIde88",
         "APP_ENV": "production",
         "APP_DEBUG": "false",
