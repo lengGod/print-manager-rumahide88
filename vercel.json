@@ -3,7 +3,8 @@
     "framework": null,
     "functions": {
         "api/index.php": {
-            "runtime": "vercel-php@0.7.1"
+            "runtime": "vercel-php@0.7.1",
+            "maxDuration": 10
         }
     },
     "routes": [
@@ -48,7 +49,7 @@
         "APP_KEY": "base64:3g4HFye2AIpj78jgdPj+E6r3qoEZGdjiK/QtnKXTahY=",
         "APP_NAME": "RumahIde88",
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
+        "APP_DEBUG": "true",
         "APP_URL": "https://rumahide88.vercel.app",
         "ASSET_URL": "https://rumahide88.vercel.app",
         "VERCEL_URL": "",
