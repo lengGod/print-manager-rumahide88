@@ -11,6 +11,7 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductTypeController;
+use App\Http\Controllers\ExternalPurchaseController;
 
 // Authentication routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -53,6 +54,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('materials', MaterialController::class);
     Route::post('/materials/{material}/add-stock', [MaterialController::class, 'addStock'])->name('materials.add-stock');
     Route::post('/materials/{material}/use-stock', [MaterialController::class, 'useStock'])->name('materials.use-stock');
+
+    // External Purchases
+    Route::resource('external-purchases', ExternalPurchaseController::class);
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
