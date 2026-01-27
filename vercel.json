@@ -69,11 +69,11 @@
         "SESSION_SECURE_COOKIE": "true",
         "SESSION_SAME_SITE": "lax",
         "DB_CONNECTION": "pgsql",
-        "DB_HOST": "ep-mute-leaf-a19w2dmu-pooler.ap-southeast-1.aws.neon.tech",
+        "DB_HOST": "ep-proud-dew-a18vvv8r-pooler.ap-southeast-1.aws.neon.tech",
         "DB_PORT": "5432",
         "DB_DATABASE": "neondb",
         "DB_USERNAME": "neondb_owner",
-        "DB_PASSWORD": "npg_dmrFGATjY26i",
+        "DB_PASSWORD": "npg_Rl5Yn8FKWAwc",
         "DB_SSLMODE": "require"
     }
 }
