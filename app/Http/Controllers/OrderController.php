@@ -108,20 +108,20 @@ class OrderController extends Controller
             $paymentStatus = $request->input('payment_status', 'unpaid'); // Get payment_status from request
 
             // Create order
-            $order = Order::create([
-                'order_number' => $orderNumber,
-                'customer_id' => $request->customer_id,
-                'order_date' => $request->order_date,
-                'deadline' => $request->deadline,
-                'notes' => $request->notes,
-                'total_amount' => $totalAmount,
-                'discount' => $discountAmount,
-                'final_amount' => $finalAmount,
-                'payment_status' => $paymentStatus, // Use payment_status from request
-                'paid_amount' => $paidAmount, // Use paid_amount from request
-                'status' => 'Menunggu Desain', // Initial status
-                'created_by' => Auth::id(),
-            ]);
+            $order = new Order;
+            $order->order_number = $orderNumber;
+            $order->customer_id = $request->customer_id;
+            $order->order_date = $request->order_date;
+            $order->deadline = $request->deadline;
+            $order->notes = $request->notes;
+            $order->total_amount = $totalAmount;
+            $order->discount = $discountAmount;
+            $order->final_amount = $finalAmount;
+            $order->payment_status = $paymentStatus;
+            $order->paid_amount = $paidAmount;
+            $order->status = 'Menunggu Desain';
+            $order->created_by = Auth::id();
+            $order->save();
 
             // Create order items
             foreach ($itemsToStore as $itemData) {
