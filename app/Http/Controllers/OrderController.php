@@ -10,7 +10,6 @@ use App\Models\ProductionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -43,36 +42,27 @@ class OrderController extends Controller
             'items.*.size' => 'nullable|string|max:255',
             'items.*.specifications' => 'nullable|array',
             'discount' => 'nullable|numeric|min:0',
-            'paid_amount' => 'required|numeric|min:0',
-            'payment_status' => 'required|in:unpaid,partial,paid',
+            'paid_amount' => 'required|numeric|min:0', // Added validation
+            'payment_status' => 'required|in:unpaid,partial,paid', // Added validation
         ]);
 
         try {
-            Log::info('Starting order creation');
-
             DB::beginTransaction();
 
             // Generate Order Number
             $orderNumber = 'ORD-' . date('Ymd-His') . '-' . Auth::id();
-            Log::info('Order number generated: ' . $orderNumber);
 
             // Calculate total amount and prepare items data
             $totalAmount = 0;
             $itemsToStore = [];
 
-            foreach ($request->items as $index => $itemData) {
-                Log::info('Processing item ' . $index, ['product_id' => $itemData['product_id']]);
-
+            foreach ($request->items as $itemData) {
                 $product = Product::find($itemData['product_id']);
-
-                if (!$product) {
-                    throw new \Exception("Product not found: " . $itemData['product_id']);
-                }
-
                 $itemPrice = $product->price;
                 $selectedSpecifications = [];
 
                 if (isset($itemData['specifications']) && is_array($itemData['specifications'])) {
+                    // Assuming specifications are sent as an array of IDs from the frontend
                     foreach ($itemData['specifications'] as $specId) {
                         $spec = $product->specifications()->find($specId);
                         if ($spec) {
@@ -89,14 +79,13 @@ class OrderController extends Controller
 
                 $subtotal = $itemPrice * $itemData['quantity'];
                 $size = null;
-
                 if ($product->unit === 'meter' && !empty($itemData['size'])) {
                     $size = $itemData['size'];
                     $dimensions = explode('x', $size);
                     if (count($dimensions) === 2) {
                         $width = floatval(trim($dimensions[0]));
                         $height = floatval(trim($dimensions[1]));
-                        $area = ($width / 100) * ($height / 100);
+                        $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
                         $subtotal = $itemPrice * $itemData['quantity'] * $area;
                     }
                 }
@@ -107,51 +96,38 @@ class OrderController extends Controller
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
                     'size' => $size,
-                    'price' => $itemPrice,
+                    'price' => $itemPrice, // Price per unit including specifications
                     'subtotal' => $subtotal,
-                    'specifications' => json_encode($selectedSpecifications),
+                    'specifications' => json_encode($selectedSpecifications), // Store as JSON string
                 ];
             }
 
             $discountAmount = $request->input('discount', 0);
             $finalAmount = $totalAmount - $discountAmount;
-            $paidAmount = $request->input('paid_amount', 0);
-            $paymentStatus = $request->input('payment_status', 'unpaid');
+            $paidAmount = $request->input('paid_amount', 0); // Get paid_amount from request
+            $paymentStatus = $request->input('payment_status', 'unpaid'); // Get payment_status from request
 
-            Log::info('Creating order', [
-                'order_number' => $orderNumber,
-                'customer_id' => $request->customer_id,
-                'total_amount' => $totalAmount,
-                'final_amount' => $finalAmount,
-                'payment_status' => $paymentStatus,
-                'paid_amount' => $paidAmount,
-                'created_by' => Auth::id(), // Add logging for created_by
-            ]);
-
-            // Create order using create method
-            $order = Order::create([
-                'order_number' => $orderNumber,
-                'customer_id' => $request->customer_id,
-                'order_date' => $request->order_date,
-                'deadline' => $request->deadline,
-                'notes' => $request->notes,
-                'total_amount' => $totalAmount,
-                'discount' => $discountAmount,
-                'final_amount' => $finalAmount,
-                'payment_status' => $paymentStatus,
-                'paid_amount' => $paidAmount,
-                'status' => 'Menunggu Desain',
-                'created_by' => Auth::id(),
-            ]);
-
-            Log::info('Order created successfully', ['order_id' => $order->id]);
+            // Create order
+            $order = new Order;
+            $order->order_number = $orderNumber;
+            $order->customer_id = $request->customer_id;
+            $order->order_date = $request->order_date;
+            $order->deadline = $request->deadline;
+            $order->notes = $request->notes;
+            $order->total_amount = $totalAmount;
+            $order->discount = $discountAmount;
+            $order->final_amount = $finalAmount;
+            $order->payment_status = $paymentStatus;
+            $order->paid_amount = $paidAmount;
+            $order->status = 'Menunggu Desain';
+            $order->created_by = Auth::id();
+            $order->save();
 
             // Create order items
             foreach ($itemsToStore as $itemData) {
-                $order->items()->create($itemData);
+                $orderItem = new OrderItem($itemData);
+                $order->items()->save($orderItem);
             }
-
-            Log::info('Order items created successfully');
 
             // Create initial production log
             ProductionLog::create([
@@ -160,24 +136,12 @@ class OrderController extends Controller
                 'operator_id' => Auth::id(),
             ]);
 
-            Log::info('Production log created successfully');
-
             DB::commit();
-
-            Log::info('Transaction committed successfully');
 
             return redirect()->route('orders.show', $order->id)
                 ->with('success', 'Order created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-
-            Log::error('Order creation failed', [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return back()->withInput()
                 ->with('error', 'Error creating order: ' . $e->getMessage());
         }
@@ -215,18 +179,18 @@ class OrderController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.size' => 'nullable|string|max:255',
-            'items.*.specifications' => 'nullable|array',
-            'items.*.item_id' => 'nullable|exists:order_items,id',
+            'items.*.specifications' => 'nullable|array', // nullable as it might be empty
+            'items.*.item_id' => 'nullable|exists:order_items,id', // for existing items
             'discount' => 'nullable|numeric|min:0',
-            'paid_amount' => 'required|numeric|min:0',
-            'payment_status' => 'required|in:unpaid,partial,paid',
+            'paid_amount' => 'required|numeric|min:0', // Added validation
+            'payment_status' => 'required|in:unpaid,partial,paid', // Added validation
         ]);
 
         try {
             DB::beginTransaction();
 
             $totalAmount = 0;
-            $itemsToKeep = [];
+            $itemsToKeep = []; // To track items that are still in the request
 
             foreach ($request->items as $itemData) {
                 $product = Product::find($itemData['product_id']);
@@ -256,13 +220,14 @@ class OrderController extends Controller
                     if (count($dimensions) === 2) {
                         $width = floatval(trim($dimensions[0]));
                         $height = floatval(trim($dimensions[1]));
-                        $area = ($width / 100) * ($height / 100);
+                        $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
                         $subtotal = $itemPrice * $itemData['quantity'] * $area;
                     }
                 }
 
                 $totalAmount += $subtotal;
 
+                // Prepare item data for update/create
                 $preparedItemData = [
                     'product_id' => $itemData['product_id'],
                     'quantity' => $itemData['quantity'],
@@ -273,24 +238,29 @@ class OrderController extends Controller
                 ];
 
                 if (isset($itemData['item_id'])) {
+                    // Update existing item
                     $orderItem = OrderItem::where('id', $itemData['item_id'])
                         ->where('order_id', $order->id)
                         ->firstOrFail();
                     $orderItem->update($preparedItemData);
                     $itemsToKeep[] = $orderItem->id;
                 } else {
-                    $orderItem = $order->items()->create($preparedItemData);
+                    // Create new item
+                    $orderItem = new OrderItem($preparedItemData);
+                    $order->items()->save($orderItem);
                     $itemsToKeep[] = $orderItem->id;
                 }
             }
 
+            // Delete items that are no longer in the request
             $order->items()->whereNotIn('id', $itemsToKeep)->delete();
 
             $discountAmount = $request->input('discount', 0);
             $finalAmount = $totalAmount - $discountAmount;
-            $paidAmount = $request->input('paid_amount', 0);
-            $paymentStatus = $request->input('payment_status', 'unpaid');
+            $paidAmount = $request->input('paid_amount', 0); // Get paid_amount from request
+            $paymentStatus = $request->input('payment_status', 'unpaid'); // Get payment_status from request
 
+            // Update order details
             $order->update([
                 'customer_id' => $request->customer_id,
                 'order_date' => $request->order_date,
@@ -299,11 +269,13 @@ class OrderController extends Controller
                 'total_amount' => $totalAmount,
                 'discount' => $discountAmount,
                 'final_amount' => $finalAmount,
-                'payment_status' => $paymentStatus,
-                'paid_amount' => $paidAmount,
+                'payment_status' => $paymentStatus, // Use payment_status from request
+                'paid_amount' => $paidAmount, // Use paid_amount from request
             ]);
 
+            // Log production status change if status changed
             if ($request->has('status') && $order->status !== $request->status) {
+                // End previous production log if exists
                 $previousLog = ProductionLog::where('order_id', $order->id)
                     ->whereNull('end_time')
                     ->first();
@@ -312,6 +284,7 @@ class OrderController extends Controller
                     $previousLog->update(['end_time' => now()]);
                 }
 
+                // Create new production log
                 ProductionLog::create([
                     'order_id' => $order->id,
                     'status' => $request->status,
@@ -328,12 +301,6 @@ class OrderController extends Controller
                 ->with('success', 'Order updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-
-            Log::error('Order update failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return back()->withInput()
                 ->with('error', 'Error updating order: ' . $e->getMessage());
         }
@@ -354,6 +321,7 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // End previous production log if exists
         $previousLog = ProductionLog::where('order_id', $order->id)
             ->whereNull('end_time')
             ->first();
@@ -362,6 +330,7 @@ class OrderController extends Controller
             $previousLog->update(['end_time' => now()]);
         }
 
+        // Create new production log
         ProductionLog::create([
             'order_id' => $order->id,
             'status' => $request->status,
@@ -370,6 +339,7 @@ class OrderController extends Controller
             'start_time' => now(),
         ]);
 
+        // Update order status
         $order->update(['status' => $request->status]);
 
         return back()->with('success', 'Order status updated successfully.');
@@ -379,6 +349,7 @@ class OrderController extends Controller
     {
         $order->load('customer', 'items.product');
 
+        // Set the locale for translation within the print blade
         app()->setLocale($request->query('lang') === 'en' ? 'en' : 'id');
 
         return view('orders.print_invoice', compact('order'));

@@ -32,23 +32,20 @@ class Order extends Model
         'payment_status' => 'string',
         'order_date' => 'date',
         'deadline' => 'date',
-        'total_amount' => 'decimal:2',
-        'discount' => 'decimal:2',
-        'final_amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
     ];
 
-    // HAPUS SEMUA INI - INI PENYEBAB ERROR
-    // public static function boot()
-    // {
-    //     parent::boot();
-    //     static::creating(function ($order) {
-    //         $order->final_amount = $order->total_amount - $order->discount;
-    //     });
-    //     static::updating(function ($order) {
-    //         $order->final_amount = $order->total_amount - $order->discount;
-    //     });
-    // }
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($order) {
+            $order->final_amount = $order->total_amount - $order->discount;
+        });
+
+        static::updating(function ($order) {
+            $order->final_amount = $order->total_amount - $order->discount;
+        });
+    }
 
     public function customer(): BelongsTo
     {
