@@ -49,8 +49,15 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generate Order Number
-            $orderNumber = 'ORD-' . date('Ymd-His') . '-' . Auth::id();
+            // Generate custom order number: YYYYMMDD-XXX
+            $datePrefix = now()->format('Ymd');
+            $latestOrder = Order::where('order_number', 'like', $datePrefix . '-%')->latest('id')->first();
+            $sequence = 1;
+            if ($latestOrder) {
+                $lastSequence = (int) substr($latestOrder->order_number, -3);
+                $sequence = $lastSequence + 1;
+            }
+            $orderNumber = $datePrefix . '-' . str_pad($sequence, 3, '0', STR_PAD_LEFT);
 
             // Calculate total amount and prepare items data
             $totalAmount = 0;
