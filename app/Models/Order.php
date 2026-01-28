@@ -27,6 +27,9 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'order_number' => 'string',
+        'status' => 'string',
+        'payment_status' => 'string',
         'order_date' => 'date',
         'deadline' => 'date',
     ];
