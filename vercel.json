@@ -4,7 +4,7 @@
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.1",
-            "maxDuration": 10
+            "maxDuration": 30
         }
     },
     "routes": [
@@ -46,34 +46,35 @@
         }
     ],
     "env": {
-        "APP_KEY": "base64:3g4HFye2AIpj78jgdPj+E6r3qoEZGdjiK/QtnKXTahY=",
         "APP_NAME": "RumahIde88",
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
+        "APP_KEY": "base64:oTd3DG6HZkQ6fXh/yniNDs1h0153Dx8VDNe+UpJDqSU=",
         "APP_URL": "https://rumahide88.vercel.app",
         "ASSET_URL": "https://rumahide88.vercel.app",
-        "VERCEL_URL": "",
+        
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp",
+        
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
         "SESSION_LIFETIME": "120",
         "SESSION_ENCRYPT": "false",
         "SESSION_PATH": "/",
-        "SESSION_DOMAIN": "null",
+        "SESSION_DOMAIN": ".vercel.app",
         "SESSION_SECURE_COOKIE": "true",
         "SESSION_SAME_SITE": "lax",
-        "DB_CONNECTION": "pgsql",
-        "DB_HOST": "ep-proud-dew-a18vvv8r-pooler.ap-southeast-1.aws.neon.tech",
-        "DB_PORT": "5432",
-        "DB_DATABASE": "neondb",
-        "DB_USERNAME": "neondb_owner",
-        "DB_PASSWORD": "npg_Rl5Yn8FKWAwc",
-        "DB_SSLMODE": "require"
+        
+        "DB_CONNECTION": "mysql",
+        "DB_HOST": "049mdx.h.filess.io",
+        "DB_PORT": "3306",
+        "DB_DATABASE": "rumahide88_frequently",
+        "DB_USERNAME": "rumahide88_frequently",
+        "DB_PASSWORD": "862652175f17e47881af89c19455792767aab736"
     }
 }
