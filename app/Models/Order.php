@@ -36,11 +36,6 @@ class Order extends Model
         parent::boot();
 
         static::creating(function ($order) {
-            if (empty($order->order_number)) {
-                $latestOrder = Order::latest()->first();
-                $lastId = $latestOrder ? $latestOrder->id : 0;
-                $order->order_number = 'ORD-' . date('Y') . '-' . str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
-            }
             $order->final_amount = $order->total_amount - $order->discount;
         });
 

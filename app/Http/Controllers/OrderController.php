@@ -49,6 +49,9 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
+            // Generate Order Number
+            $orderNumber = 'ORD-' . date('Ymd-His') . '-' . Auth::id();
+
             // Calculate total amount and prepare items data
             $totalAmount = 0;
             $itemsToStore = [];
@@ -106,6 +109,7 @@ class OrderController extends Controller
 
             // Create order
             $order = Order::create([
+                'order_number' => $orderNumber,
                 'customer_id' => $request->customer_id,
                 'order_date' => $request->order_date,
                 'deadline' => $request->deadline,
