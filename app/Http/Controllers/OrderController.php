@@ -125,6 +125,7 @@ class OrderController extends Controller
                 'final_amount' => $finalAmount,
                 'payment_status' => $paymentStatus,
                 'paid_amount' => $paidAmount,
+                'created_by' => Auth::id(), // Add logging for created_by
             ]);
 
             // Create order using create method
