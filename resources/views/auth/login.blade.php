@@ -100,12 +100,6 @@
                     </div>
                 </form>
             </div>
-
-            <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                Belum punya akun?
-                <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500">
-                    Daftar di sini
-                </a>
             </p>
         </div>
     </div>
