@@ -62,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/orders', [ReportController::class, 'orders'])->name('reports.orders');
     Route::get('/reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
-    Route::get('/reports/production', [ReportController::class, 'production'])->name('reports.production');
-    Route::get('/reports/materials', [ReportController::class, 'materials'])->name('reports.materials');
-    Route::get('/reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+    // Route::get('/reports/production', [ReportController::class, 'production'])->name('reports.production');
+    // Route::get('/reports/materials', [ReportController::class, 'materials'])->name('reports.materials');
+    // Route::get('/reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
 });

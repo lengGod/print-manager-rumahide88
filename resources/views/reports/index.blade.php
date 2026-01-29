@@ -21,23 +21,23 @@
                 <p class="text-gray-600 dark:text-gray-400">Lihat semua pesanan yang telah tercatat.</p>
             </a>
 
-            <a href="{{ route('reports.production') }}"
+            {{-- <a href="{{ route('reports.production') }}"
                 class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Laporan Produksi</h2>
                 <p class="text-gray-600 dark:text-gray-400">Lihat status dan log produksi.</p>
-            </a>
+            </a> --}}
 
-            <a href="{{ route('reports.materials') }}"
+            {{-- <a href="{{ route('reports.materials') }}"
                 class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Laporan Bahan Baku</h2>
                 <p class="text-gray-600 dark:text-gray-400">Pantau penggunaan dan stok bahan baku.</p>
-            </a>
+            </a> --}}
 
-            <a href="{{ route('reports.profit') }}"
+            {{-- <a href="{{ route('reports.profit') }}"
                 class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Laporan Laba Rugi</h2>
                 <p class="text-gray-600 dark:text-gray-400">Analisis pendapatan dan pengeluaran.</p>
-            </a>
+            </a> --}}
         </div>
     </div>
 @endsection

@@ -52,7 +52,7 @@
                 {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden" id="printable-content">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                 <thead class="bg-gray-50 dark:bg-slate-700">
                     <tr>
@@ -140,98 +140,57 @@
 @push('styles')
     <style>
         @media print {
-            body {
-                background-color: #fff !important;
-                color: #000 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            body * {
+                visibility: hidden;
             }
-
-            .no-print {
-                display: none !important;
+            #printable-content, #printable-content * {
+                visibility: visible;
             }
-
-            .report-header {
-                display: block !important;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-
-            .report-header h1 {
-                font-size: 24px;
-                color: #333;
-                margin-bottom: 5px;
-            }
-
-            .report-header p {
-                font-size: 14px;
-                color: #555;
-            }
-
-            .bg-white, .bg-slate-800, .bg-gray-50, .bg-blue-100, .bg-green-100, .bg-yellow-100, .bg-red-100 {
-                background-color: #fff !important;
-                color: #000 !important;
-            }
-
-            .dark\:text-white, .dark\:text-slate-200, .dark\:text-slate-400, .dark\:text-gray-300 {
-                color: #000 !important;
+            #printable-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                overflow: visible !important;
+                overflow-x: visible !important;
             }
 
             table {
                 width: 100%;
                 border-collapse: collapse;
-                margin-top: 20px;
                 page-break-inside: auto;
             }
-
             tr {
                 page-break-inside: avoid;
                 page-break-after: auto;
             }
-
             thead {
                 display: table-header-group;
             }
-
             th,
             td {
-                border: 1px solid #000;
-                padding: 6px 8px; /* Slightly reduced padding */
+                border: 1px solid #000 !important;
+                padding: 6px 8px;
                 text-align: left;
-                font-size: 11px; /* Slightly increased font size */
+                font-size: 11px;
                 line-height: 1.3;
+                color: #000 !important;
+                background-color: #fff !important;
             }
-
             th {
                 background-color: #f2f2f2 !important;
                 font-weight: bold;
-                color: #333 !important;
             }
-
             .px-2.inline-flex.text-xs.leading-5.font-semibold.rounded-full {
-                border: 1px solid #ccc;
+                border: 1px solid #ccc !important;
                 padding: 2px 5px;
             }
-
-            .mt-6.p-4.bg-white.dark\:bg-slate-800.rounded-lg.shadow-md.no-print {
-                border: 1px solid #eee;
-                padding: 15px;
-                margin-top: 20px;
+            span {
+                color: #000 !important;
+                background-color: transparent !important;
             }
-
-            .mt-6.p-4.bg-white.dark\:bg-slate-800.rounded-lg.shadow-md {
-                border: 1px solid #eee;
-                padding: 15px;
-                margin-top: 20px;
-            }
-
-            .grid.grid-cols-1.md\:grid-cols-3.gap-4 p, .list-disc.list-inside li {
-                font-size: 12px;
-                margin-bottom: 2px;
-            }
-
-            .grid.grid-cols-1.md\:grid-cols-3.gap-4 p.font-bold {
-                font-size: 14px;
+            .dark\:text-white, .dark\:text-gray-300, .text-gray-900, .text-gray-500 {
+                color: #000 !important;
             }
         }
     </style>
