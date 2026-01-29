@@ -54,7 +54,7 @@
                         </div>
                     </div>
                     <div class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                        <p><span class="font-medium text-slate-500">Telepon:</span> {{ $customer->phone }}</p>
+                        <p><span class="font-medium text-slate-500">Telepon:</span> {{ $customer->phone_number }}</p>
                         <p><span class="font-medium text-slate-500">Email:</span> {{ $customer->email }}</p>
                         <p><span class="font-medium text-slate-500">Alamat:</span> {{ $customer->address }}</p>
                     </div>
@@ -85,7 +85,7 @@
                             {{ $customer->name }}</td>
                         <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                             <div class="flex flex-col">
-                                <span>{{ $customer->phone }}</span>
+                                <span>{{ $customer->phone_number }}</span>
                                 <span class="text-xs text-slate-500">{{ $customer->email }}</span>
                             </div>
                         </td>
