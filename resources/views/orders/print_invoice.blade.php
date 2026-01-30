@@ -129,8 +129,8 @@
                     <h1 class="text-2xl font-extrabold text-gray-800 mb-1">
                         {{ app()->getLocale() === 'en' ? 'INVOICE' : 'FAKTUR' }}</h1>
                     <p class="text-gray-600 text-[10px]">RumahIde88</p>
-                    <p class="text-gray-600 text-[10px]">Jl. Kota Raja, Gn. Sari, Kec. Tj. Karang Pusat, Kota Bandar
-                        Lampung, Lampung 35127, Indonesia</p>
+                    <p class="text-gray-600 text-[10px]">Jl. Kamboja No.4, Enggal, Kec. Tanjungkarang Timur, Kota Bandar
+                        Lampung, Lampung 35111</p>
                     <p class="text-gray-600 text-[10px]">Email:
                         {{ app()->getLocale() === 'en' ? 'rumahide88@gmail.com' : 'rumahide88@gmail.com' }}</p>
                 </div>
