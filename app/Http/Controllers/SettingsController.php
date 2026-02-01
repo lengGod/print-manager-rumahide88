@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Spatie\DbDumper\Databases\MySql;
 use Illuminate\Support\Facades\Storage;
+use Spatie\DbDumper\Exceptions\DumpFailed;
 
 class SettingsController extends Controller
 {
@@ -35,11 +36,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui.');
     }
 
-    use Spatie\DbDumper\Exceptions\DumpFailed;
-
-// ... (rest of the imports)
-
-// ... (inside the class)
     public function backupDatabase()
     {
         try {
