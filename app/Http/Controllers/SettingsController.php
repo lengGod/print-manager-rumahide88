@@ -35,18 +35,32 @@ class SettingsController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui.');
     }
 
+    use Spatie\DbDumper\Exceptions\DumpFailed;
+
+// ... (rest of the imports)
+
+// ... (inside the class)
     public function backupDatabase()
     {
-        $fileName = 'rumahide88-backup-' . now()->format('Y-m-d-H-i-s') . '.sql';
-        $path = storage_path('app/backups/' . $fileName);
+        try {
+            // Ensure the backup directory exists.
+            $backupDirectory = 'backups';
+            Storage::disk('local')->makeDirectory($backupDirectory);
 
-        MySql::create()
-            ->setDbName(config('database.connections.mysql.database'))
-            ->setUserName(config('database.connections.mysql.username'))
-            ->setPassword(config('database.connections.mysql.password'))
-            ->setPort(config('database.connections.mysql.port'))
-            ->dumpToFile($path);
+            $fileName = 'rumahide88-backup-' . now()->format('Y-m-d-H-i-s') . '.sql';
+            $path = storage_path('app/' . $backupDirectory . '/' . $fileName);
 
-        return response()->download($path)->deleteFileAfterSend(true);
+            MySql::create()
+                ->setDbName(config('database.connections.mysql.database'))
+                ->setUserName(config('database.connections.mysql.username'))
+                ->setPassword(config('database.connections.mysql.password'))
+                ->setPort(config('database.connections.mysql.port'))
+                ->dumpToFile($path);
+
+            return response()->download($path)->deleteFileAfterSend(true);
+        } catch (DumpFailed $e) {
+            // Redirect back with an error message.
+            return back()->with('error', 'Gagal membuat cadangan basis data: ' . $e->getMessage());
+        }
     }
 }
