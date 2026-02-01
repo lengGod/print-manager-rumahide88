@@ -129,8 +129,8 @@
                 </a>
             </nav>
             <div class="px-4 py-4 border-t border-slate-100 dark:border-slate-800 space-y-1">
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                    href="#">
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('settings*') ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors' }}"
+                    href="{{ route('settings.index') }}">
                     <span class="material-symbols-outlined">settings</span>
                     <span class="text-sm font-medium">Pengaturan</span>
                 </a>
