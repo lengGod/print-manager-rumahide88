@@ -65,4 +65,9 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('/reports/production', [ReportController::class, 'production'])->name('reports.production');
     // Route::get('/reports/materials', [ReportController::class, 'materials'])->name('reports.materials');
     // Route::get('/reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+
+    // Settings
+    Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/profile', [\App\Http\Controllers\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/settings/backup', [\App\Http\Controllers\SettingsController::class, 'backupDatabase'])->name('settings.backup');
 });
