@@ -149,12 +149,18 @@
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4"> {{-- Changed from md:grid-cols-3 to md:grid-cols-4 --}}
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produk</label>
                             <select name="items[${itemCount}][product_id]" class="product-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}" required>
                                 <option value="">Pilih Produk</option>
-                                ${products.map(product => `<option value="${product.id}" data-price="${product.price}" data-unit="${product.unit}">${product.name}</option>`).join('')}
+                                ${products.map(product => `<option value="${product.id}" data-unit="${product.unit}" data-default-price="${product.price || 0}">${product.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="price-option-container" data-item-id="${itemCount}">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Opsi Harga</label>
+                            <select name="items[${itemCount}][price_option_id]" class="price-option-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}">
+                                <option value="">Pilih Harga</option>
                             </select>
                         </div>
                         <div>
@@ -165,13 +171,14 @@
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ukuran (cm)</label>
                             <input type="text" name="items[${itemCount}][size]" placeholder="Contoh: 100x100" class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}">
                         </div>
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-4"> {{-- Changed from md:col-span-3 to md:col-span-4 --}}
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Spesifikasi</label>
                             <div class="specifications-container" data-item-id="${itemCount}">
                                 <!-- Specifications will be added here when a product is selected -->
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="items[${itemCount}][selected_price]" class="selected-item-price" value="0" data-item-id="${itemCount}">
                     <div class="specifications-hidden-inputs" data-item-id="${itemCount}">
                         <!-- Hidden inputs for specifications will be added here dynamically -->
                     </div>
@@ -187,44 +194,74 @@
                 newItem.querySelector('.product-select').addEventListener('change', function() {
                     const productId = this.value;
                     const itemId = this.dataset.itemId;
-                    const selectedOption = this.options[this.selectedIndex];
-                    const unit = selectedOption.dataset.unit;
-                    const sizeContainer = document.querySelector(
-                        `.size-container[data-item-id="${itemId}"]`);
+                    const selectedProductOption = this.options[this.selectedIndex];
+                    const unit = selectedProductOption.dataset.unit;
+                    const defaultPrice = parseFloat(selectedProductOption.dataset.defaultPrice || 0);
 
+                    const sizeContainer = newItem.querySelector(`.size-container[data-item-id="${itemId}"]`);
                     if (unit === 'meter') {
                         sizeContainer.style.display = 'block';
                     } else {
                         sizeContainer.style.display = 'none';
                     }
 
-                    // Update specifications
-                    const specificationsContainer = document.querySelector(
-                        `.specifications-container[data-item-id="${itemId}"]`);
-                    specificationsContainer.innerHTML = '';
+                    // Populate price options
+                    const priceOptionSelect = newItem.querySelector(`.price-option-select[data-item-id="${itemId}"]`);
+                    priceOptionSelect.innerHTML = '<option value="">Pilih Harga</option>'; // Reset options
 
-                    if (productId) {
-                        const product = products.find(p => p.id == productId);
-                        if (product && product.specifications && product.specifications.length > 0) {
-                            product.specifications.forEach(spec => {
-                                const specHtml = `
+                    const product = products.find(p => p.id == productId);
+                    if (product && product.price_options && product.price_options.length > 0) {
+                        product.price_options.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option.id;
+                            optionElement.textContent = `${option.label} (Rp ${number_format(option.price, 0, ',', '.')})`;
+                            optionElement.dataset.price = option.price;
+                            priceOptionSelect.appendChild(optionElement);
+                        });
+                        // Make price option required if there are options
+                        priceOptionSelect.setAttribute('required', 'required');
+                        priceOptionSelect.closest('.price-option-container').style.display = 'block';
+                    } else {
+                        // If no price options, use product's default price and hide price option select
+                        priceOptionSelect.removeAttribute('required');
+                        priceOptionSelect.closest('.price-option-container').style.display = 'none';
+                    }
+                    // Always ensure selected-item-price is set after product selection, defaulting to product's price or 0
+                    newItem.querySelector(`.selected-item-price[data-item-id="${itemId}"]`).value = defaultPrice;
+
+                    // Update specifications
+                    const specificationsContainer = newItem.querySelector(`.specifications-container[data-item-id="${itemId}"]`);
+                    specificationsContainer.innerHTML = ''; // Clear previous specifications
+
+                    if (product && product.specifications && product.specifications.length > 0) {
+                        product.specifications.forEach(spec => {
+                            const specHtml = `
                                 <div class="flex items-center mb-2">
-                                    <input type="checkbox" id="spec-${itemId}-${spec.id}" name="specifications[${itemId}][${spec.id}]" value="${spec.id}" class="spec-checkbox mr-2" data-item-id="${itemId}" data-price="${spec.additional_price}">
+                                    <input type="checkbox" id="spec-${itemId}-${spec.id}" name="items[${itemId}][specifications][]" value="${spec.id}" class="spec-checkbox mr-2" data-item-id="${itemId}" data-price="${spec.additional_price}">
                                     <label for="spec-${itemId}-${spec.id}" class="text-sm text-slate-700 dark:text-slate-300">${spec.name}: ${spec.value} (+Rp ${number_format(spec.additional_price, 0, ',', '.')})</label>
                                 </div>
                             `;
-                                specificationsContainer.insertAdjacentHTML('beforeend', specHtml);
-                            });
+                            specificationsContainer.insertAdjacentHTML('beforeend', specHtml);
+                        });
 
-                            // Add event listeners to specification checkboxes
-                            specificationsContainer.querySelectorAll('.spec-checkbox').forEach(checkbox => {
-                                checkbox.addEventListener('change', updateOrderSummary);
-                            });
-                        }
+                        // Add event listeners to specification checkboxes
+                        specificationsContainer.querySelectorAll('.spec-checkbox').forEach(checkbox => {
+                            checkbox.addEventListener('change', updateOrderSummary);
+                        });
                     }
 
                     updateOrderSummary();
                 });
+
+                // Price Option change event
+                newItem.querySelector('.price-option-select').addEventListener('change', function() {
+                    const itemId = this.dataset.itemId;
+                    const selectedPriceOption = this.options[this.selectedIndex];
+                    const selectedPrice = parseFloat(selectedPriceOption.dataset.price || 0);
+                    newItem.querySelector(`.selected-item-price[data-item-id="${itemId}"]`).value = selectedPrice;
+                    updateOrderSummary();
+                });
+
 
                 // Quantity change event
                 newItem.querySelector('.quantity-input').addEventListener('input', updateOrderSummary);
@@ -255,15 +292,19 @@
                     const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
                     const sizeInput = item.querySelector('.size-input');
                     const sizeValue = sizeInput ? sizeInput.value : '';
-                    const selectedOption = item.querySelector('.product-select').options[item.querySelector(
-                        '.product-select').selectedIndex];
-                    const unit = selectedOption.dataset.unit;
-
+                    const productSelectElement = item.querySelector('.product-select');
+                    const selectedProductOptionElement = productSelectElement.options[productSelectElement.selectedIndex];
+                    const unit = selectedProductOptionElement ? selectedProductOptionElement.dataset.unit : null;
 
                     if (productId) {
                         const product = products.find(p => p.id == productId);
                         if (product) {
-                            let itemPrice = product.price;
+                            let itemPrice = 0;
+
+                            // Get price from selected price option or default product price
+                            const selectedItemPriceInput = item.querySelector(`.selected-item-price[data-item-id="${item.dataset.itemId}"]`);
+                            itemPrice = parseFloat(selectedItemPriceInput.value || product.price || 0);
+
 
                             // Add specification prices
                             item.querySelectorAll('.spec-checkbox:checked').forEach(checkbox => {

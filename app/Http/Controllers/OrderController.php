@@ -25,7 +25,7 @@ class OrderController extends Controller
     public function create()
     {
         $customers = Customer::orderBy('name')->get();
-        $products = Product::with('specifications')->orderBy('name')->get();
+        $products = Product::with(['specifications', 'priceOptions'])->orderBy('name')->get();
         return view('orders.create', compact('customers', 'products'));
     }
 
@@ -38,6 +38,8 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
+            'items.*.price_option_id' => 'nullable|exists:product_price_options,id', // New
+            'items.*.selected_price' => 'required|numeric|min:0', // New: The actual price selected
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.size' => 'nullable|string|max:255',
             'items.*.specifications' => 'nullable|array',
@@ -65,7 +67,8 @@ class OrderController extends Controller
 
             foreach ($request->items as $itemData) {
                 $product = Product::find($itemData['product_id']);
-                $itemPrice = $product->price;
+                // Get the base price for the item, either from selected_price or product's default price
+                $itemPrice = $itemData['selected_price'];
                 $selectedSpecifications = [];
 
                 if (isset($itemData['specifications']) && is_array($itemData['specifications'])) {
@@ -104,6 +107,7 @@ class OrderController extends Controller
 
                 $itemsToStore[] = [
                     'product_id' => $itemData['product_id'],
+                    'product_price_option_id' => $itemData['price_option_id'] ?? null, // Added
                     'quantity' => $itemData['quantity'],
                     'size' => $size,
                     'price' => $itemPrice, // Price per unit including specifications
@@ -172,8 +176,8 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         $customers = Customer::orderBy('name')->get();
-        $products = Product::with('specifications')->orderBy('name')->get();
-        $order->load('items.product.specifications');
+        $products = Product::with(['specifications', 'priceOptions'])->orderBy('name')->get();
+        $order->load('items.product.specifications', 'items.productPriceOption'); // Load priceOptions on products and productPriceOption on order items
 
         return view('orders.edit', compact('order', 'customers', 'products'));
     }
@@ -187,6 +191,8 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
+            'items.*.price_option_id' => 'nullable|exists:product_price_options,id', // New
+            'items.*.selected_price' => 'required|numeric|min:0', // New: The actual price selected
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.size' => 'nullable|string|max:255',
             'items.*.specifications' => 'nullable|array', // nullable as it might be empty
@@ -204,7 +210,8 @@ class OrderController extends Controller
 
             foreach ($request->items as $itemData) {
                 $product = Product::find($itemData['product_id']);
-                $itemPrice = $product->price;
+                // Get the base price for the item, either from selected_price or product's default price
+                $itemPrice = $itemData['selected_price'];
                 $selectedSpecifications = [];
 
                 if (isset($itemData['specifications']) && is_array($itemData['specifications'])) {
@@ -243,6 +250,7 @@ class OrderController extends Controller
                 // Prepare item data for update/create
                 $preparedItemData = [
                     'product_id' => $itemData['product_id'],
+                    'product_price_option_id' => $itemData['price_option_id'] ?? null, // Added
                     'quantity' => $itemData['quantity'],
                     'size' => $size,
                     'price' => $itemPrice,

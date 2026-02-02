@@ -99,11 +99,10 @@
                 <div id="order-items" class="space-y-4">
                     @foreach ($order->items as $item)
                         @php
-                            // Convert specifications to array if it's a string
-$itemSpecifications = is_string($item->specifications)
-    ? json_decode($item->specifications, true) ?? []
-    : (is_object($item->specifications)
-        ? $item->specifications->pluck('id')->toArray()
+                            $itemSpecifications = is_string($item->specifications)
+                                ? json_decode($item->specifications, true) ?? []
+                                : (is_object($item->specifications)
+                                    ? $item->specifications->pluck('id')->toArray()
                                     : []);
                         @endphp
                         <div class="order-item p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
@@ -116,7 +115,7 @@ $itemSpecifications = is_string($item->specifications)
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div>
                                     <label
                                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produk</label>
@@ -125,10 +124,27 @@ $itemSpecifications = is_string($item->specifications)
                                         data-item-id="{{ $loop->iteration }}" required>
                                         <option value="">Pilih Produk</option>
                                         @foreach ($products as $product)
-                                            <option value="{{ $product->id }}" data-price="{{ $product->price }}"
-                                                data-unit="{{ $product->unit }}"
+                                            <option value="{{ $product->id }}" data-unit="{{ $product->unit }}"
+                                                data-default-price="{{ $product->price ?? 0 }}"
                                                 {{ $item->product_id == $product->id ? 'selected' : '' }}>
-                                                {{ $product->name }}</option>
+                                                {{ $product->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="price-option-container" data-item-id="{{ $loop->iteration }}">
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Opsi Harga</label>
+                                    <select name="items[{{ $loop->iteration }}][price_option_id]"
+                                        class="price-option-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white"
+                                        data-item-id="{{ $loop->iteration }}"
+                                        {{ $item->product->priceOptions->count() > 0 ? 'required' : '' }}
+                                        style="display: {{ $item->product->priceOptions->count() > 0 ? 'block' : 'none' }}">
+                                        <option value="">Pilih Harga</option>
+                                        @foreach ($item->product->priceOptions as $option)
+                                            <option value="{{ $option->id }}" data-price="{{ $option->price }}"
+                                                {{ $item->product_price_option_id == $option->id ? 'selected' : '' }}>
+                                                {{ $option->label }} (Rp {{ number_format($option->price, 0, ',', '.') }})
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -150,16 +166,16 @@ $itemSpecifications = is_string($item->specifications)
                                         class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white"
                                         data-item-id="{{ $loop->iteration }}">
                                 </div>
-                                <div class="md:col-span-3">
+                                <div class="md:col-span-4">
                                     <label
                                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Spesifikasi</label>
                                     <div class="specifications-container" data-item-id="{{ $loop->iteration }}">
-                                        @if ($item->product)
+                                        @if ($item->product->specifications)
                                             @foreach ($item->product->specifications as $spec)
                                                 <div class="flex items-center mb-2">
                                                     <input type="checkbox"
                                                         id="spec-{{ $loop->parent->iteration }}-{{ $spec->id }}"
-                                                        name="specifications[{{ $loop->parent->iteration }}][{{ $spec->id }}]"
+                                                        name="items[{{ $loop->parent->iteration }}][specifications][]"
                                                         value="{{ $spec->id }}" class="spec-checkbox mr-2"
                                                         data-item-id="{{ $loop->parent->iteration }}"
                                                         data-price="{{ $spec->additional_price }}"
@@ -174,11 +190,10 @@ $itemSpecifications = is_string($item->specifications)
                                     </div>
                                 </div>
                             </div>
-                            <div class="specifications-hidden-inputs" data-item-id="{{ $loop->iteration }}">
-                                <!-- Hidden inputs for specifications will be added here dynamically -->
-                            </div>
                             <input type="hidden" name="items[{{ $loop->iteration }}][item_id]"
                                 value="{{ $item->id }}">
+                            <input type="hidden" name="items[{{ $loop->iteration }}][selected_price]" class="selected-item-price"
+                                value="{{ $item->price }}" data-item-id="{{ $loop->iteration }}">
                         </div>
                     @endforeach
                 </div>
@@ -224,109 +239,135 @@ $itemSpecifications = is_string($item->specifications)
         document.addEventListener('DOMContentLoaded', function() {
             const products = @json($products);
             const initialOrderItems = @json($order->items);
+            let itemCount = initialOrderItems.length;
 
-            // Add item button
-            document.getElementById('add-item').addEventListener('click', function() {
-                let maxId = 0;
-                document.querySelectorAll('.order-item').forEach(item => {
-                    const itemId = parseInt(item.dataset.itemId, 10);
-                    if (itemId > maxId) {
-                        maxId = itemId;
-                    }
-                });
-                const newItemId = maxId + 1;
-                addItem(newItemId);
-                updateOrderSummary();
-            });
-
-            // Initialize existing items
+            // Setup event listeners for initial items
             initialOrderItems.forEach((item, index) => {
                 const currentItemCount = index + 1;
                 const itemElement = document.querySelector(
                     `.order-item[data-item-id="${currentItemCount}"]`);
                 if (itemElement) {
-                    setupItemEventListeners(itemElement, currentItemCount);
+                    setupItemEventListeners(itemElement);
+                    // Manually trigger product change to populate price options and specifications
+                    const productSelect = itemElement.querySelector('.product-select');
+                    if (productSelect) {
+                        const event = new Event('change');
+                        productSelect.dispatchEvent(event);
+                    }
                 }
+            });
+
+            // Add item button
+            document.getElementById('add-item').addEventListener('click', function() {
+                addItem();
+                updateOrderSummary();
             });
 
             // Initial summary calculation
             updateOrderSummary();
 
-            function addItem(currentCount) {
+            function addItem() {
+                itemCount++;
                 const itemHtml = `
-                <div class="order-item p-4 border border-slate-200 dark:border-slate-700 rounded-lg" data-item-id="${currentCount}">
+                <div class="order-item p-4 border border-slate-200 dark:border-slate-700 rounded-lg" data-item-id="${itemCount}">
                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-sm font-medium text-slate-900 dark:text-white">Item ${currentCount}</h4>
-                        <button type="button" class="remove-item text-rose-600 hover:text-rose-800" data-item-id="${currentCount}">
+                        <h4 class="text-sm font-medium text-slate-900 dark:text-white">Item ${itemCount}</h4>
+                        <button type="button" class="remove-item text-rose-600 hover:text-rose-800" data-item-id="${itemCount}">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Produk</label>
-                            <select name="items[${currentCount}][product_id]" class="product-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${currentCount}" required>
+                            <select name="items[${itemCount}][product_id]" class="product-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}" required>
                                 <option value="">Pilih Produk</option>
-                                ${products.map(product => `<option value="${product.id}" data-price="${product.price}" data-unit="${product.unit}">${product.name}</option>`).join('')}
+                                ${products.map(product => `<option value="${product.id}" data-unit="${product.unit}" data-default-price="${product.price || 0}">${product.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="price-option-container" data-item-id="${itemCount}" style="display: none;">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Opsi Harga</label>
+                            <select name="items[${itemCount}][price_option_id]" class="price-option-select w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}">
+                                <option value="">Pilih Harga</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kuantitas</label>
-                            <input type="number" name="items[${currentCount}][quantity]" min="1" value="1" class="quantity-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${currentCount}" required>
+                            <input type="number" name="items[${itemCount}][quantity]" min="1" value="1" class="quantity-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}" required>
                         </div>
-                         <div class="size-container" data-item-id="${currentCount}" style="display: none;">
+                         <div class="size-container" data-item-id="${itemCount}" style="display: none;">
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ukuran (cm)</label>
-                            <input type="text" name="items[${currentCount}][size]" placeholder="Contoh: 100x100" class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${currentCount}">
+                            <input type="text" name="items[${itemCount}][size]" placeholder="Contoh: 100x100" class="size-input w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-slate-700 dark:text-white" data-item-id="${itemCount}">
                         </div>
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-4">
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Spesifikasi</label>
-                            <div class="specifications-container" data-item-id="${currentCount}">
+                            <div class="specifications-container" data-item-id="${itemCount}">
                                 <!-- Specifications will be added here when a product is selected -->
                             </div>
                         </div>
                     </div>
-                    <div class="specifications-hidden-inputs" data-item-id="${currentCount}">
+                    <input type="hidden" name="items[${itemCount}][price]" class="selected-item-price" value="0" data-item-id="${itemCount}">
+                    <div class="specifications-hidden-inputs" data-item-id="${itemCount}">
                         <!-- Hidden inputs for specifications will be added here dynamically -->
                     </div>
                 </div>
                 `;
 
                 document.getElementById('order-items').insertAdjacentHTML('beforeend', itemHtml);
-
-                const newItem = document.querySelector(`.order-item[data-item-id="${currentCount}"]`);
-                setupItemEventListeners(newItem, currentCount);
+                const newItem = document.querySelector(`.order-item[data-item-id="${itemCount}"]`);
+                setupItemEventListeners(newItem);
             }
 
-            function setupItemEventListeners(itemElement, currentCount) {
+            function setupItemEventListeners(itemElement) {
                 // Product change event
                 itemElement.querySelector('.product-select').addEventListener('change', function() {
                     const productId = this.value;
                     const itemId = this.dataset.itemId;
-                    const selectedOption = this.options[this.selectedIndex];
-                    const unit = selectedOption.dataset.unit;
-                    const sizeContainer = itemElement.querySelector(
-                        `.size-container[data-item-id="${itemId}"]`);
+                    const selectedProductOption = this.options[this.selectedIndex];
+                    const unit = selectedProductOption.dataset.unit;
+                    const defaultPrice = parseFloat(selectedProductOption.dataset.defaultPrice || 0);
 
+                    const sizeContainer = itemElement.querySelector(`.size-container[data-item-id="${itemId}"]`);
                     if (unit === 'meter') {
                         sizeContainer.style.display = 'block';
                     } else {
                         sizeContainer.style.display = 'none';
                     }
 
-                    // Update specifications
-                    const specificationsContainer = itemElement.querySelector(
-                        `.specifications-container[data-item-id="${itemId}"]`);
-                    specificationsContainer.innerHTML = '';
+                    // Populate price options
+                    const priceOptionSelect = itemElement.querySelector(`.price-option-select[data-item-id="${itemId}"]`);
+                    priceOptionSelect.innerHTML = '<option value="">Pilih Harga</option>'; // Reset options
 
-                    if (productId) {
-                        const product = products.find(p => p.id == productId);
-                        if (product && product.specifications && product.specifications.length > 0) {
+                    const product = products.find(p => p.id == productId);
+                    if (product) {
+                        if (product.price_options && product.price_options.length > 0) {
+                            product.price_options.forEach(option => {
+                                const optionElement = document.createElement('option');
+                                optionElement.value = option.id;
+                                optionElement.textContent = `${option.label} (Rp ${number_format(option.price, 0, ',', '.')})`;
+                                optionElement.dataset.price = option.price;
+                                priceOptionSelect.appendChild(optionElement);
+                            });
+                            priceOptionSelect.setAttribute('required', 'required');
+                            priceOptionSelect.closest('.price-option-container').style.display = 'block';
+                        } else {
+                            // If no price options, use product's default price and hide price option select
+                            itemElement.querySelector(`.selected-item-price[data-item-id="${itemId}"]`).value = defaultPrice;
+                            priceOptionSelect.removeAttribute('required');
+                            priceOptionSelect.closest('.price-option-container').style.display = 'none';
+                        }
+
+                        // Update specifications
+                        const specificationsContainer = itemElement.querySelector(`.specifications-container[data-item-id="${itemId}"]`);
+                        specificationsContainer.innerHTML = ''; // Clear previous specifications
+
+                        if (product.specifications && product.specifications.length > 0) {
                             product.specifications.forEach(spec => {
                                 const specHtml = `
-                                <div class="flex items-center mb-2">
-                                    <input type="checkbox" id="spec-${itemId}-${spec.id}" name="specifications[${itemId}][${spec.id}]" value="${spec.id}" class="spec-checkbox mr-2" data-item-id="${itemId}" data-price="${spec.additional_price}">
-                                    <label for="spec-${itemId}-${spec.id}" class="text-sm text-slate-700 dark:text-slate-300">${spec.name}: ${spec.value} (+Rp ${number_format(spec.additional_price, 0, ',', '.')})</label>
-                                </div>
-                            `;
+                                    <div class="flex items-center mb-2">
+                                        <input type="checkbox" id="spec-${itemId}-${spec.id}" name="items[${itemId}][specifications][]" value="${spec.id}" class="spec-checkbox mr-2" data-item-id="${itemId}" data-price="${spec.additional_price}">
+                                        <label for="spec-${itemId}-${spec.id}" class="text-sm text-slate-700 dark:text-slate-300">${spec.name}: ${spec.value} (+Rp ${number_format(spec.additional_price, 0, ',', '.')})</label>
+                                    </div>
+                                `;
                                 specificationsContainer.insertAdjacentHTML('beforeend', specHtml);
                             });
 
@@ -336,9 +377,18 @@ $itemSpecifications = is_string($item->specifications)
                             });
                         }
                     }
-
                     updateOrderSummary();
                 });
+
+                // Price Option change event
+                itemElement.querySelector('.price-option-select').addEventListener('change', function() {
+                    const itemId = this.dataset.itemId;
+                    const selectedPriceOption = this.options[this.selectedIndex];
+                    const selectedPrice = parseFloat(selectedPriceOption.dataset.price || 0);
+                    itemElement.querySelector(`.selected-item-price[data-item-id="${itemId}"]`).value = selectedPrice;
+                    updateOrderSummary();
+                });
+
 
                 // Quantity change event
                 itemElement.querySelector('.quantity-input').addEventListener('input', updateOrderSummary);
@@ -349,18 +399,44 @@ $itemSpecifications = is_string($item->specifications)
                     sizeInput.addEventListener('input', updateOrderSummary);
                 }
 
-
                 // Remove item button
                 itemElement.querySelector('.remove-item').addEventListener('click', function() {
                     this.closest('.order-item').remove();
                     updateOrderSummary();
                 });
 
-                // Specification checkboxes event (for existing items)
-                itemElement.querySelectorAll('.spec-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', updateOrderSummary);
-                });
+                // Pre-select existing product and price option if available
+                const itemId = itemElement.dataset.itemId;
+                const existingItem = initialOrderItems[itemId - 1]; // items are 1-indexed
+                if (existingItem) {
+                    const productSelect = itemElement.querySelector('.product-select');
+                    productSelect.value = existingItem.product_id;
+                    const event = new Event('change');
+                    productSelect.dispatchEvent(event); // Trigger change to populate price options
+
+                    if (existingItem.product_price_option_id) {
+                        const priceOptionSelect = itemElement.querySelector('.price-option-select');
+                        priceOptionSelect.value = existingItem.product_price_option_id;
+                        const priceOptionEvent = new Event('change');
+                        priceOptionSelect.dispatchEvent(priceOptionEvent); // Trigger change to set price
+                    } else if (existingItem.price) {
+                        // Fallback for items with no price option but a direct price (legacy or default product price)
+                        itemElement.querySelector(`.selected-item-price[data-item-id="${itemId}"]`).value = existingItem.price;
+                    }
+
+                    // Pre-check specifications
+                    if (existingItem.specifications && Array.isArray(existingItem.specifications)) {
+                        existingItem.specifications.forEach(specId => {
+                            const checkbox = itemElement.querySelector(
+                                `#spec-${itemId}-${specId}`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
+                }
             }
+
 
             // Discount input event
             document.getElementById('discount').addEventListener('input', updateOrderSummary);
@@ -373,21 +449,25 @@ $itemSpecifications = is_string($item->specifications)
                 document.querySelectorAll('.order-item').forEach(item => {
                     const productId = item.querySelector('.product-select').value;
                     const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
-
                     const sizeInput = item.querySelector('.size-input');
                     const sizeValue = sizeInput ? sizeInput.value : '';
-                    const productSelect = item.querySelector('.product-select');
-                    const selectedOption = productSelect.options[productSelect.selectedIndex];
-                    const unit = selectedOption ? selectedOption.dataset.unit : null;
+                    const productSelectElement = item.querySelector('.product-select');
+                    const selectedProductOptionElement = productSelectElement.options[productSelectElement.selectedIndex];
+                    const unit = selectedProductOptionElement ? selectedProductOptionElement.dataset.unit : null;
 
                     if (productId) {
                         const product = products.find(p => p.id == productId);
                         if (product) {
-                            let itemPrice = parseFloat(product.price) || 0;
+                            let itemPrice = 0;
+
+                            // Get price from selected price option or default product price
+                            const selectedItemPriceInput = item.querySelector(`.selected-item-price[data-item-id="${item.dataset.itemId}"]`);
+                            itemPrice = parseFloat(selectedItemPriceInput.value || product.price || 0);
+
 
                             // Add specification prices
                             item.querySelectorAll('.spec-checkbox:checked').forEach(checkbox => {
-                                itemPrice += parseFloat(checkbox.dataset.price) || 0;
+                                itemPrice += parseFloat(checkbox.dataset.price);
                             });
 
                             if (unit === 'meter' && sizeValue) {
@@ -430,9 +510,8 @@ $itemSpecifications = is_string($item->specifications)
                 // Update hidden specifications inputs
                 document.querySelectorAll('.order-item').forEach(item => {
                     const itemId = item.dataset.itemId;
-                    const hiddenInputsContainer = item.querySelector(
-                        `.specifications-hidden-inputs[data-item-id="${itemId}"]`);
-                    hiddenInputsContainer.innerHTML = ''; // Clear previous hidden inputs
+                    // Find existing hidden inputs for specifications and remove them if they are from the old structure
+                    item.querySelectorAll(`input[name^="items[${itemId}][specifications]["]`).forEach(input => input.remove());
 
                     const checkedSpecs = Array.from(item.querySelectorAll('.spec-checkbox:checked')).map(
                         cb => cb.value);
@@ -442,7 +521,8 @@ $itemSpecifications = is_string($item->specifications)
                         input.type = 'hidden';
                         input.name = `items[${itemId}][specifications][]`;
                         input.value = specId;
-                        hiddenInputsContainer.appendChild(input);
+                        // Append to the order-item div itself, or a specific container if preferred
+                        item.appendChild(input);
                     });
                 });
             }
