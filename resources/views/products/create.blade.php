@@ -54,10 +54,10 @@
                 </div>
 
                 <div>
-                    <label for="price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga</label>
+                    <label for="price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga Utama (Opsional)</label>
                     <input type="number" name="price" id="price"
                         class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
-                        value="{{ old('price') }}" required min="0">
+                        value="{{ old('price') }}" min="0">
                     @error('price')
                         <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -83,6 +83,46 @@
                 </div>
             </div>
 
+            {{-- Product Price Options Section --}}
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Opsi Harga Produk</h2>
+                <div id="price-options-container" class="space-y-4">
+                    @if (old('price_options'))
+                        @foreach (old('price_options') as $index => $option)
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 price-option-item">
+                                <div>
+                                    <label for="price_options-{{ $index }}-label" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Label Harga</label>
+                                    <input type="text" name="price_options[{{ $index }}][label]" id="price_options-{{ $index }}-label"
+                                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
+                                        value="{{ $option['label'] }}" required>
+                                    @error('price_options.' . $index . '.label')
+                                        <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="price_options-{{ $index }}-price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga</label>
+                                    <input type="number" name="price_options[{{ $index }}][price]" id="price_options-{{ $index }}-price"
+                                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
+                                        value="{{ $option['price'] }}" required min="0">
+                                    @error('price_options.' . $index . '.price')
+                                        <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="flex items-end">
+                                    <button type="button" class="remove-price-option-button px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors w-full">Hapus</button>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+                <button type="button" id="add-price-option-button"
+                    class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    <span>Tambah Opsi Harga</span>
+                </button>
+            </div>
+
+            {{-- Product Specifications Section --}}
             <div class="mb-6">
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Spesifikasi Produk</h2>
                 <div id="specifications-container" class="space-y-4">
@@ -92,24 +132,6 @@
                                 <div>
                                     <label for="specifications-{{ $index }}-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nama Spesifikasi</label>
                                     <input type="text" name="specifications[{{ $index }}][name]" id="specifications-{{ $index }}-name"
-                                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary"
-                                        value="{{ $spec['name'] }}" required>
-                                    @error('specifications.' . $index . '.name')
-                                        <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label for="specifications-{{ $index }}-value" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nilai</label>
-                                    <input type="text" name="specifications[{{ $index }}][value]" id="specifications-{{ $index }}-value"
-                                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary"
-                                        value="{{ $spec['value'] }}" required>
-                                    @error('specifications.' . $index . '.value')
-                                        <p class="text-rose-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label for="specifications-{{ $index }}-additional_price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga Tambahan</label>
-                                    <input type="text" name="specifications[{{ $index }}][name]" id="specifications-{{ $index }}-name"
                                         class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
                                         value="{{ $spec['name'] }}" required>
                                     @error('specifications.' . $index . '.name')
@@ -117,8 +139,8 @@
                                     @enderror
                                 </div>
                                 <div>
-                                    <label for="specifications-{{ $index }}-value" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nilai</label>
-                                    <input type="text" name="specifications[{{ $index }}][value]" id="specifications-{{ $index }}-value"
+                                    <label for="specifications-${specificationIndex}-value" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nilai</label>
+                                    <input type="text" name="specifications[${specificationIndex}][value]" id="specifications-${specificationIndex}-value"
                                         class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
                                         value="{{ $spec['value'] }}" required>
                                     @error('specifications.' . $index . '.value')
@@ -159,6 +181,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 let specificationIndex = {{ old('specifications') ? count(old('specifications')) : 0 }};
+                let priceOptionIndex = {{ old('price_options') ? count(old('price_options')) : 0 }};
 
                 document.getElementById('add-specification-button').addEventListener('click', function () {
                     addSpecificationRow();
@@ -167,6 +190,16 @@
                 document.getElementById('specifications-container').addEventListener('click', function (e) {
                     if (e.target.classList.contains('remove-specification-button')) {
                         e.target.closest('.specification-item').remove();
+                    }
+                });
+
+                document.getElementById('add-price-option-button').addEventListener('click', function () {
+                    addPriceOptionRow();
+                });
+
+                document.getElementById('price-options-container').addEventListener('click', function (e) {
+                    if (e.target.classList.contains('remove-price-option-button')) {
+                        e.target.closest('.price-option-item').remove();
                     }
                 });
 
@@ -199,6 +232,31 @@
                     `;
                     container.appendChild(newRow);
                     specificationIndex++;
+                }
+
+                function addPriceOptionRow() {
+                    const container = document.getElementById('price-options-container');
+                    const newRow = document.createElement('div');
+                    newRow.classList.add('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4', 'price-option-item');
+                    newRow.innerHTML = `
+                        <div>
+                            <label for="price_options-${priceOptionIndex}-label" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Label Harga</label>
+                            <input type="text" name="price_options[${priceOptionIndex}][label]" id="price_options-${priceOptionIndex}-label"
+                                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
+                                required>
+                        </div>
+                        <div>
+                            <label for="price_options-${priceOptionIndex}-price" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Harga</label>
+                            <input type="number" name="price_options[${priceOptionIndex}][price]" id="price_options-${priceOptionIndex}-price"
+                                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-primary focus:border-primary mt-1"
+                                required min="0">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" class="remove-price-option-button px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors w-full">Hapus</button>
+                        </div>
+                    `;
+                    container.appendChild(newRow);
+                    priceOptionIndex++;
                 }
             });
         </script>

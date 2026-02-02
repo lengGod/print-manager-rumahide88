@@ -35,6 +35,11 @@ class Product extends Model
         return $this->hasMany(ProductSpecification::class);
     }
 
+    public function priceOptions(): HasMany
+    {
+        return $this->hasMany(ProductPriceOption::class);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

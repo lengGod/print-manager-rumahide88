@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\ProductType;
 use App\Models\Product;
 use App\Models\ProductSpecification;
+use App\Models\ProductPriceOption; // Import the new model
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -28,13 +29,16 @@ class ProductController extends Controller
         $validatedData = $request->validate([
             'product_type_id' => 'required|exists:product_types,id',
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0', // Changed to nullable
             'unit' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'specifications' => 'array',
             'specifications.*.name' => 'required|string|max:100',
             'specifications.*.value' => 'required|string|max:100',
             'specifications.*.additional_price' => 'required|numeric|min:0',
+            'price_options' => 'array', // New validation for price options
+            'price_options.*.label' => 'required|string|max:255',
+            'price_options.*.price' => 'required|numeric|min:0',
         ]);
 
         $productType = ProductType::find($validatedData['product_type_id']);
@@ -42,6 +46,7 @@ class ProductController extends Controller
 
         $product = Product::create($validatedData);
 
+        // Process Product Specifications (existing logic)
         if ($request->has('specifications')) {
             foreach ($request->specifications as $spec) {
                 ProductSpecification::create([
@@ -53,13 +58,24 @@ class ProductController extends Controller
             }
         }
 
+        // Process Product Price Options (new logic)
+        if ($request->has('price_options')) {
+            foreach ($request->price_options as $option) {
+                ProductPriceOption::create([
+                    'product_id' => $product->id,
+                    'label' => $option['label'],
+                    'price' => $option['price'],
+                ]);
+            }
+        }
+
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil dibuat.');
     }
 
     public function show(Product $product)
     {
-        $product->load('productType.category', 'specifications');
+        $product->load('productType.category', 'specifications', 'priceOptions'); // Load price options
         return view('products.show', compact('product'));
     }
 
@@ -67,7 +83,7 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $productTypes = ProductType::orderBy('name')->get();
-        $product->load('specifications');
+        $product->load('specifications', 'priceOptions'); // Load price options
         return view('products.edit', compact('product', 'categories', 'productTypes'));
     }
 
@@ -76,13 +92,16 @@ class ProductController extends Controller
         $validatedData = $request->validate([
             'product_type_id' => 'required|exists:product_types,id',
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0', // Changed to nullable
             'unit' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'specifications' => 'array',
             'specifications.*.name' => 'required|string|max:100',
             'specifications.*.value' => 'required|string|max:100',
             'specifications.*.additional_price' => 'required|numeric|min:0',
+            'price_options' => 'array', // New validation for price options
+            'price_options.*.label' => 'required|string|max:255',
+            'price_options.*.price' => 'required|numeric|min:0',
         ]);
 
         $productType = ProductType::find($validatedData['product_type_id']);
@@ -101,6 +120,20 @@ class ProductController extends Controller
                     'name' => $spec['name'],
                     'value' => $spec['value'],
                     'additional_price' => $spec['additional_price'],
+                ]);
+            }
+        }
+
+        // Delete existing price options
+        ProductPriceOption::where('product_id', $product->id)->delete();
+
+        // Create new price options
+        if ($request->has('price_options')) {
+            foreach ($request->price_options as $option) {
+                ProductPriceOption::create([
+                    'product_id' => $product->id,
+                    'label' => $option['label'],
+                    'price' => $option['price'],
                 ]);
             }
         }
