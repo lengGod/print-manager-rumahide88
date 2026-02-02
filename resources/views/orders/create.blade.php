@@ -276,7 +276,10 @@
                                         1])) {
                                     const widthInMeters = dimensions[0] / 100;
                                     const heightInMeters = dimensions[1] / 100;
-                                    const area = widthInMeters * heightInMeters;
+                                    let area = widthInMeters * heightInMeters;
+                                    if (area > 0 && area < 1) {
+                                        area = 1;
+                                    }
                                     subtotal += itemPrice * area * quantity;
                                 }
                             } else {

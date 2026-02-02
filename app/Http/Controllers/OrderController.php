@@ -93,6 +93,9 @@ class OrderController extends Controller
                         $width = floatval(trim($dimensions[0]));
                         $height = floatval(trim($dimensions[1]));
                         $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
+                        if ($area > 0 && $area < 1) {
+                            $area = 1;
+                        }
                         $subtotal = $itemPrice * $itemData['quantity'] * $area;
                     }
                 }
@@ -228,6 +231,9 @@ class OrderController extends Controller
                         $width = floatval(trim($dimensions[0]));
                         $height = floatval(trim($dimensions[1]));
                         $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
+                        if ($area > 0 && $area < 1) {
+                            $area = 1;
+                        }
                         $subtotal = $itemPrice * $itemData['quantity'] * $area;
                     }
                 }
