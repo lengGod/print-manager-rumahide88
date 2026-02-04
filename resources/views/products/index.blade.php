@@ -10,69 +10,14 @@
         <span class="text-slate-900 dark:text-white">Produk</span>
     </nav>
 
-    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
-        x-data="{
-            searchTerm: '{{ request('search') }}',
-            productsHtml: '',
-            loading: false,
-            fetchProducts() {
-                this.loading = true;
-                fetch(`{{ route('products.index') }}?search=${this.searchTerm}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    this.productsHtml = html;
-                    this.loading = false;
-                })
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                    this.loading = false;
-                });
-            },
-            init() {
-                this.fetchProducts();
-                // Listen for pagination clicks within the loaded content
-                this.$watch('productsHtml', () => {
-                    this.$nextTick(() => {
-                        this.$el.querySelectorAll('.pagination a').forEach(link => {
-                            link.removeEventListener('click', this.handlePaginationClick);
-                            link.addEventListener('click', this.handlePaginationClick.bind(this));
-                        });
-                    });
-                });
-            },
-            handlePaginationClick(event) {
-                event.preventDefault();
-                const url = event.target.href;
-                this.loading = true;
-                fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    this.productsHtml = html;
-                    this.loading = false;
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                })
-                .catch(error => {
-                    console.error('Error fetching paginated products:', error);
-                    this.loading = false;
-                });
-            }
-        }"
-    >
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
         <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between">
             <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 sm:mb-0">Daftar Produk</h2>
             <div class="flex items-center gap-2 w-full sm:w-auto">
-                <div class="relative flex-grow sm:flex-grow-0">
-                    <input type="text" x-model.debounce.300ms="searchTerm" @input="fetchProducts" placeholder="Cari produk..." class="pl-10 pr-4 py-2 w-full border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:bg-slate-800 dark:text-white">
+                <form action="{{ route('products.index') }}" method="GET" class="relative flex-grow sm:flex-grow-0">
+                    <input type="text" name="search" placeholder="Cari produk..." value="{{ request('search') }}" class="pl-10 pr-4 py-2 w-full border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:bg-slate-800 dark:text-white">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                </div>
+                </form>
                 <a href="{{ route('products.create') }}"
                     class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
                     <span class="material-symbols-outlined text-lg">add</span>
@@ -80,16 +25,129 @@
                 </a>
             </div>
         </div>
+        @if ($products->isEmpty())
+            <div class="p-6">
+                <p class="text-slate-500 dark:text-slate-400 text-center">Belum ada produk yang tersedia.</p>
+            </div>
+        @else
+            <!-- Mobile Card View -->
+            <div class="md:hidden">
+                <div class="p-4 space-y-4">
+                    @foreach ($products as $product)
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <span class="font-bold text-slate-900 dark:text-white">{{ $product->name }}</span>
+                                    <p class="text-xs text-slate-500">ID: {{ $product->id }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('products.show', $product->id) }}"
+                                        class="text-slate-400 hover:text-primary">
+                                        <span class="material-symbols-outlined text-xl">visibility</span>
+                                    </a>
+                                    <a href="{{ route('products.edit', $product->id) }}"
+                                        class="text-slate-400 hover:text-amber-600">
+                                        <span class="material-symbols-outlined text-xl">edit</span>
+                                    </a>
+                                    <form action="{{ route('products.destroy', $product->id) }}" method="POST"
+                                        id="delete-form-{{ $product->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                            @click.prevent="$dispatch('open-confirm-modal', {
+                                            title: 'Hapus Produk',
+                                            message: 'Anda yakin ingin menghapus produk ini?',
+                                            formId: 'delete-form-{{ $product->id }}'
+                                        })"
+                                            class="text-slate-400 hover:text-rose-600">
+                                            <span class="material-symbols-outlined text-xl">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                                <p><span class="font-medium text-slate-500">Tipe:</span>
+                                    {{ $product->productType->name ?? 'N/A' }}</p>
+                                <p><span class="font-medium text-slate-500">Kategori:</span>
+                                    {{ $product->category->name ?? 'N/A' }}</p>
+                                <p><span class="font-medium text-slate-500">Harga:</span> Rp
+                                    {{ number_format($product->price, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
 
-        <!-- Loading Indicator -->
-        <div x-show="loading" class="p-6 text-center text-slate-500 dark:text-slate-400">
-            Memuat...
-        </div>
+            <!-- Desktop Table View -->
+            <div class="overflow-x-auto hidden md:block">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-800/50">
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Produk
+                            </th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tipe Produk
+                            </th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Harga</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        @foreach ($products as $product)
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <input type="checkbox"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600">
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $product->name }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                                    {{ $product->productType->name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                                    {{ $product->category->name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Rp
+                                    {{ number_format($product->price, 0, ',', '.') }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('products.show', $product->id) }}"
+                                            class="text-slate-400 hover:text-primary">
+                                            <span class="material-symbols-outlined text-xl">visibility</span>
+                                        </a>
+                                        <a href="{{ route('products.edit', $product->id) }}"
+                                            class="text-slate-400 hover:text-amber-600">
+                                            <span class="material-symbols-outlined text-xl">edit</span>
+                                        </a>
+                                        <form action="{{ route('products.destroy', $product->id) }}" method="POST"
+                                            id="delete-form-desktop-{{ $product->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button"
+                                                @click.prevent="$dispatch('open-confirm-modal', {
+                                                title: 'Hapus Produk',
+                                                message: 'Anda yakin ingin menghapus produk ini?',
+                                                formId: 'delete-form-desktop-{{ $product->id }}'
+                                            })"
+                                                class="text-slate-400 hover:text-rose-600">
+                                                <span class="material-symbols-outlined text-xl">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Product List -->
-        <div x-html="productsHtml">
-            {{-- Initial load will be here, subsequent loads via AJAX --}}
-            @include('products._product_list', ['products' => $products])
-        </div>
+            <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                    Menampilkan {{ $products->firstItem() }} hingga {{ $products->lastItem() }} dari
+                    {{ $products->total() }} hasil
+                </div>
+                {{ $products->links() }}
+            </div>
+        @endif
     </div>
 @endsection

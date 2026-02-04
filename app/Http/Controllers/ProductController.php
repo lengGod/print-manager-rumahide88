@@ -30,10 +30,6 @@ class ProductController extends Controller
 
         $products = $query->paginate(10)->appends($request->only('search'));
 
-        if ($request->ajax()) {
-            return view('products._product_list', compact('products'))->render();
-        }
-
         return view('products.index', compact('products'));
     }
 

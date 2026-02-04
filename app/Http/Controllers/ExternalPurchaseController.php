@@ -28,10 +28,6 @@ class ExternalPurchaseController extends Controller
 
         $purchases = $query->paginate(15)->appends($request->only('search'));
 
-        if ($request->ajax()) {
-            return view('external-purchases._purchase_list', compact('purchases'))->render();
-        }
-
         return view('external-purchases.index', compact('purchases'));
     }
 

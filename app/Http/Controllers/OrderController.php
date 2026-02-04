@@ -31,10 +31,6 @@ class OrderController extends Controller
 
         $orders = $query->paginate(10)->appends($request->only('search'));
 
-        if ($request->ajax()) {
-            return view('orders._order_list', compact('orders'))->render();
-        }
-
         return view('orders.index', compact('orders'));
     }
 
