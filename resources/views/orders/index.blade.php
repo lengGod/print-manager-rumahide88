@@ -21,6 +21,14 @@
                 this.loading = true;
                 this.hasError = false;
                 this.errorMessage = '';
+
+                // Prevent search for very short terms (e.g., less than 3 characters) unless empty
+                if (this.searchTerm.length > 0 && this.searchTerm.length < 3) {
+                    this.ordersHtml = '<div class="p-6 text-center text-slate-500 dark:text-slate-400">Masukkan minimal 3 karakter untuk mencari.</div>';
+                    this.loading = false;
+                    return;
+                }
+
                 fetch(`{{ route('orders.index') }}?search=${this.searchTerm}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
