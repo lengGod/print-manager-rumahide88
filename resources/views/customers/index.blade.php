@@ -15,14 +15,23 @@
             searchTerm: '{{ request('search') }}',
             customersHtml: '',
             loading: false,
+            hasError: false,
+            errorMessage: '',
             fetchCustomers() {
                 this.loading = true;
+                this.hasError = false;
+                this.errorMessage = '';
                 fetch(`{{ route('customers.index') }}?search=${this.searchTerm}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
                 .then(html => {
                     this.customersHtml = html;
                     this.loading = false;
@@ -30,6 +39,8 @@
                 .catch(error => {
                     console.error('Error fetching customers:', error);
                     this.loading = false;
+                    this.hasError = true;
+                    this.errorMessage = 'Gagal memuat pelanggan. Silakan coba lagi.';
                 });
             },
             init() {
@@ -48,12 +59,19 @@
                 event.preventDefault();
                 const url = event.target.href;
                 this.loading = true;
+                this.hasError = false;
+                this.errorMessage = '';
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
                 .then(html => {
                     this.customersHtml = html;
                     this.loading = false;
@@ -62,6 +80,8 @@
                 .catch(error => {
                     console.error('Error fetching paginated customers:', error);
                     this.loading = false;
+                    this.hasError = true;
+                    this.errorMessage = 'Gagal memuat halaman pelanggan. Silakan coba lagi.';
                 });
             }
         }"
@@ -86,8 +106,13 @@
             Memuat...
         </div>
 
+        <!-- Error Message -->
+        <div x-show="hasError" class="p-6 text-center text-rose-600 dark:text-rose-400">
+            <p x-text="errorMessage"></p>
+        </div>
+
         <!-- Customer List -->
-        <div x-html="customersHtml">
+        <div x-html="customersHtml" x-show="!hasError">
             {{-- Initial load will be here, subsequent loads via AJAX --}}
             @include('customers._customer_list', ['customers' => $customers])
         </div>
