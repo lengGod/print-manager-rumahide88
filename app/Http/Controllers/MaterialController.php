@@ -24,6 +24,10 @@ class MaterialController extends Controller
 
         $materials = $query->paginate(10)->appends($request->only('search'));
         
+        if ($request->ajax()) {
+            return view('materials._material_list', compact('materials'))->render();
+        }
+
         return view('materials.index', compact('materials'));
     }
 

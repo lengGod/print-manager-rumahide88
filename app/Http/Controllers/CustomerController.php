@@ -22,6 +22,10 @@ class CustomerController extends Controller
 
         $customers = $query->paginate(10)->appends($request->only('search'));
 
+        if ($request->ajax()) {
+            return view('customers._customer_list', compact('customers'))->render();
+        }
+
         return view('customers.index', compact('customers'));
     }
 

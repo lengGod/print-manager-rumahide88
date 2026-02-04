@@ -31,6 +31,10 @@ class DesignFileController extends Controller
 
         $designFiles = $query->paginate(10)->appends($request->only('search'));
 
+        if ($request->ajax()) {
+            return view('design-files._design_file_list', compact('designFiles'))->render();
+        }
+
         return view('design-files.index', compact('designFiles'));
     }
 

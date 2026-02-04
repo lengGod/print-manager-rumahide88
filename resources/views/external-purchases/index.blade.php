@@ -10,14 +10,68 @@
         <span class="text-slate-900 dark:text-white">Pembelian Eksternal</span>
     </nav>
 
-    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800"
+        x-data="{
+            searchTerm: '{{ request('search') }}',
+            purchasesHtml: '',
+            loading: false,
+            fetchPurchases() {
+                this.loading = true;
+                fetch(`{{ route('external-purchases.index') }}?search=${this.searchTerm}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    this.purchasesHtml = html;
+                    this.loading = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching external purchases:', error);
+                    this.loading = false;
+                });
+            },
+            init() {
+                this.fetchPurchases();
+                this.$watch('purchasesHtml', () => {
+                    this.$nextTick(() => {
+                        this.$el.querySelectorAll('.pagination a').forEach(link => {
+                            link.removeEventListener('click', this.handlePaginationClick);
+                            link.addEventListener('click', this.handlePaginationClick.bind(this));
+                        });
+                    });
+                });
+            },
+            handlePaginationClick(event) {
+                event.preventDefault();
+                const url = event.target.href;
+                this.loading = true;
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    this.purchasesHtml = html;
+                    this.loading = false;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Error fetching paginated external purchases:', error);
+                    this.loading = false;
+                });
+            }
+        }"
+    >
         <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between">
             <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 sm:mb-0">Semua Pembelian Eksternal</h2>
             <div class="flex items-center gap-2 w-full sm:w-auto">
-                <form action="{{ route('external-purchases.index') }}" method="GET" class="relative flex-grow sm:flex-grow-0">
-                    <input type="text" name="search" placeholder="Cari pembelian..." value="{{ request('search') }}" class="pl-10 pr-4 py-2 w-full border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:bg-slate-800 dark:text-white">
+                <div class="relative flex-grow sm:flex-grow-0">
+                    <input type="text" x-model.debounce.300ms="searchTerm" @input="fetchPurchases" placeholder="Cari pembelian..." class="pl-10 pr-4 py-2 w-full border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:bg-slate-800 dark:text-white">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                </form>
+                </div>
                 <a href="{{ route('external-purchases.create') }}"
                     class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
                     <span class="material-symbols-outlined text-lg">add</span>
@@ -26,124 +80,15 @@
             </div>
         </div>
 
-        <!-- Desktop Table View -->
-        <div class="overflow-x-auto hidden md:block">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-800/50">
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Barang</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Toko Asal</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Harga</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status Bayar</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Dicatat Oleh</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    @forelse($purchases as $purchase)
-                        <tr>
-                            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $purchase->purchase_date->format('d M Y') }}</td>
-                            <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">{{ $purchase->item_name }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $purchase->source_shop }}</td>
-                            <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">Rp {{ number_format($purchase->price, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4 text-sm">
-                                @if ($purchase->payment_status == 'lunas')
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Lunas</span>
-                                @else
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Belum Lunas</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $purchase->createdBy->name }}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('external-purchases.edit', $purchase->id) }}" class="text-slate-400 hover:text-amber-600">
-                                        <span class="material-symbols-outlined text-xl">edit</span>
-                                    </a>
-                                    <form action="{{ route('external-purchases.destroy', $purchase->id) }}" method="POST" id="delete-form-{{ $purchase->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                            @click.prevent="$dispatch('open-confirm-modal', {
-                                                title: 'Hapus Catatan',
-                                                message: 'Anda yakin ingin menghapus catatan pembelian ini?',
-                                                formId: 'delete-form-{{ $purchase->id }}'
-                                            })"
-                                            class="text-slate-400 hover:text-rose-600">
-                                            <span class="material-symbols-outlined text-xl">delete</span>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                                Belum ada catatan pembelian eksternal.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <!-- Loading Indicator -->
+        <div x-show="loading" class="p-6 text-center text-slate-500 dark:text-slate-400">
+            Memuat...
         </div>
 
-        <!-- Mobile Card View -->
-        <div class="md:hidden">
-            <div class="p-4 space-y-4">
-                @forelse($purchases as $purchase)
-                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-800">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="font-bold text-slate-900 dark:text-white">{{ $purchase->item_name }}</span>
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('external-purchases.edit', $purchase->id) }}" class="text-slate-400 hover:text-amber-600">
-                                    <span class="material-symbols-outlined text-xl">edit</span>
-                                </a>
-                                <form action="{{ route('external-purchases.destroy', $purchase->id) }}" method="POST" id="delete-form-mobile-{{ $purchase->id }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button"
-                                        @click.prevent="$dispatch('open-confirm-modal', {
-                                            title: 'Hapus Catatan',
-                                            message: 'Anda yakin ingin menghapus catatan pembelian ini?',
-                                            formId: 'delete-form-mobile-{{ $purchase->id }}'
-                                        })"
-                                        class="text-slate-400 hover:text-rose-600">
-                                        <span class="material-symbols-outlined text-xl">delete</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                            <p><span class="font-medium text-slate-500">Toko:</span> {{ $purchase->source_shop }}</p>
-                            <p><span class="font-medium text-slate-500">Harga:</span> Rp {{ number_format($purchase->price, 0, ',', '.') }}</p>
-                            <p><span class="font-medium text-slate-500">Tanggal:</span> {{ $purchase->purchase_date->format('d M Y') }}</p>
-                            <p><span class="font-medium text-slate-500">Status:</span>
-                                @if ($purchase->payment_status == 'lunas')
-                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Lunas</span>
-                                @else
-                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Belum Lunas</span>
-                                @endif
-                            </p>
-                             <p><span class="font-medium text-slate-500">Dicatat oleh:</span> {{ $purchase->createdBy->name }}</p>
-                            @if($purchase->notes)
-                            <p class="text-xs pt-1"><span class="font-medium text-slate-500">Catatan:</span> {{ Str::limit($purchase->notes, 100) }}</p>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-8">
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Belum ada catatan pembelian eksternal.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-             <div class="text-sm text-slate-500 dark:text-slate-400">
-                Menampilkan {{ $purchases->firstItem() }} hingga {{ $purchases->lastItem() }} dari
-                {{ $purchases->total() }} hasil
-            </div>
-            {{ $purchases->links() }}
+        <!-- Purchase List -->
+        <div x-html="purchasesHtml">
+            {{-- Initial load will be here, subsequent loads via AJAX --}}
+            @include('external-purchases._purchase_list', ['purchases' => $purchases])
         </div>
     </div>
 @endsection
