@@ -15,31 +15,14 @@
             searchTerm: '{{ request('search') }}',
             purchasesHtml: '',
             loading: false,
-            hasError: false,
-            errorMessage: '',
             fetchPurchases() {
                 this.loading = true;
-                this.hasError = false;
-                this.errorMessage = '';
-
-                // Prevent search for very short terms (e.g., less than 3 characters) unless empty
-                if (this.searchTerm.length > 0 && this.searchTerm.length < 3) {
-                    this.purchasesHtml = '<div class="p-6 text-center text-slate-500 dark:text-slate-400">Masukkan minimal 3 karakter untuk mencari.</div>';
-                    this.loading = false;
-                    return;
-                }
-
                 fetch(`{{ route('external-purchases.index') }}?search=${this.searchTerm}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
+                .then(response => response.text())
                 .then(html => {
                     this.purchasesHtml = html;
                     this.loading = false;
@@ -47,8 +30,6 @@
                 .catch(error => {
                     console.error('Error fetching external purchases:', error);
                     this.loading = false;
-                    this.hasError = true;
-                    this.errorMessage = 'Gagal memuat pembelian eksternal. Silakan coba lagi.';
                 });
             },
             init() {
@@ -66,19 +47,12 @@
                 event.preventDefault();
                 const url = event.target.href;
                 this.loading = true;
-                this.hasError = false;
-                this.errorMessage = '';
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
+                .then(response => response.text())
                 .then(html => {
                     this.purchasesHtml = html;
                     this.loading = false;
@@ -87,8 +61,6 @@
                 .catch(error => {
                     console.error('Error fetching paginated external purchases:', error);
                     this.loading = false;
-                    this.hasError = true;
-                    this.errorMessage = 'Gagal memuat halaman pembelian eksternal. Silakan coba lagi.';
                 });
             }
         }"
@@ -113,13 +85,8 @@
             Memuat...
         </div>
 
-        <!-- Error Message -->
-        <div x-show="hasError" class="p-6 text-center text-rose-600 dark:text-rose-400">
-            <p x-text="errorMessage"></p>
-        </div>
-
         <!-- Purchase List -->
-        <div x-html="purchasesHtml" x-show="!hasError">
+        <div x-html="purchasesHtml">
             {{-- Initial load will be here, subsequent loads via AJAX --}}
             @include('external-purchases._purchase_list', ['purchases' => $purchases])
         </div>

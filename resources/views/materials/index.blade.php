@@ -15,31 +15,14 @@
             searchTerm: '{{ request('search') }}',
             materialsHtml: '',
             loading: false,
-            hasError: false,
-            errorMessage: '',
             fetchMaterials() {
                 this.loading = true;
-                this.hasError = false;
-                this.errorMessage = '';
-
-                // Prevent search for very short terms (e.g., less than 3 characters) unless empty
-                if (this.searchTerm.length > 0 && this.searchTerm.length < 3) {
-                    this.materialsHtml = '<div class="p-6 text-center text-slate-500 dark:text-slate-400">Masukkan minimal 3 karakter untuk mencari.</div>';
-                    this.loading = false;
-                    return;
-                }
-
                 fetch(`{{ route('materials.index') }}?search=${this.searchTerm}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
+                .then(response => response.text())
                 .then(html => {
                     this.materialsHtml = html;
                     this.loading = false;
@@ -47,8 +30,6 @@
                 .catch(error => {
                     console.error('Error fetching materials:', error);
                     this.loading = false;
-                    this.hasError = true;
-                    this.errorMessage = 'Gagal memuat bahan. Silakan coba lagi.';
                 });
             },
             init() {
@@ -66,19 +47,12 @@
                 event.preventDefault();
                 const url = event.target.href;
                 this.loading = true;
-                this.hasError = false;
-                this.errorMessage = '';
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
+                .then(response => response.text())
                 .then(html => {
                     this.materialsHtml = html;
                     this.loading = false;
@@ -87,8 +61,6 @@
                 .catch(error => {
                     console.error('Error fetching paginated materials:', error);
                     this.loading = false;
-                    this.hasError = true;
-                    this.errorMessage = 'Gagal memuat halaman bahan. Silakan coba lagi.';
                 });
             }
         }"
@@ -113,13 +85,8 @@
             Memuat...
         </div>
 
-        <!-- Error Message -->
-        <div x-show="hasError" class="p-6 text-center text-rose-600 dark:text-rose-400">
-            <p x-text="errorMessage"></p>
-        </div>
-
         <!-- Material List -->
-        <div x-html="materialsHtml" x-show="!hasError">
+        <div x-html="materialsHtml">
             {{-- Initial load will be here, subsequent loads via AJAX --}}
             @include('materials._material_list', ['materials' => $materials])
         </div>
