@@ -11,12 +11,22 @@ class ExternalPurchaseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $purchases = ExternalPurchase::with('createdBy')
+        $query = ExternalPurchase::with('createdBy')
             ->orderBy('purchase_date', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('item_name', 'like', "%{$search}%")
+                    ->orWhere('source_shop', 'like', "%{$search}%")
+                    ->orWhere('payment_status', 'like', "%{$search}%");
+            });
+        }
+
+        $purchases = $query->paginate(15)->appends($request->only('search'));
 
         return view('external-purchases.index', compact('purchases'));
     }

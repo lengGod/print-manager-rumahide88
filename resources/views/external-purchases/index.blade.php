@@ -11,13 +11,19 @@
     </nav>
 
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Semua Pembelian Eksternal</h2>
-            <a href="{{ route('external-purchases.create') }}"
-                class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
-                <span class="material-symbols-outlined text-lg">add</span>
-                <span class="hidden sm:inline">Tambah Catatan</span>
-            </a>
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 sm:mb-0">Semua Pembelian Eksternal</h2>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <form action="{{ route('external-purchases.index') }}" method="GET" class="relative flex-grow sm:flex-grow-0">
+                    <input type="text" name="search" placeholder="Cari pembelian..." value="{{ request('search') }}" class="pl-10 pr-4 py-2 w-full border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary dark:bg-slate-800 dark:text-white">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                </form>
+                <a href="{{ route('external-purchases.create') }}"
+                    class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    <span class="hidden sm:inline">Tambah Catatan</span>
+                </a>
+            </div>
         </div>
 
         <!-- Desktop Table View -->

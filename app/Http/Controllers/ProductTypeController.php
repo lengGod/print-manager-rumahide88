@@ -11,9 +11,22 @@ class ProductTypeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $productTypes = ProductType::with('category')->latest()->paginate(10);
+        $query = ProductType::with('category')->latest();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $productTypes = $query->paginate(10)->appends($request->only('search'));
+        
         return view('product-types.index', compact('productTypes'));
     }
 

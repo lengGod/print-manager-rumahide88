@@ -10,11 +10,26 @@ use Illuminate\Support\Facades\Storage;
 
 class DesignFileController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $designFiles = DesignFile::with('orderItem.order.customer', 'uploadedBy')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = DesignFile::with('orderItem.order.customer', 'uploadedBy')
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('file_name', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhereHas('orderItem.order', function ($q) use ($search) {
+                        $q->where('order_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('orderItem.order.customer', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $designFiles = $query->paginate(10)->appends($request->only('search'));
 
         return view('design-files.index', compact('designFiles'));
     }

@@ -10,9 +10,20 @@ use Illuminate\Support\Facades\DB;
 
 class MaterialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $materials = Material::orderBy('name')->paginate(10);
+        $query = Material::orderBy('name');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $materials = $query->paginate(10)->appends($request->only('search'));
+        
         return view('materials.index', compact('materials'));
     }
 
