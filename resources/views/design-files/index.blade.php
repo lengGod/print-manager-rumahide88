@@ -15,23 +15,14 @@
                 searchTerm: '{{ request('search') }}',
                 designFilesHtml: '',
                 loading: false,
-                hasError: false,
-                errorMessage: '',
                 fetchDesignFiles() {
                     this.loading = true;
-                    this.hasError = false;
-                    this.errorMessage = '';
                     fetch(`{{ route('design-files.index') }}?search=${this.searchTerm}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    })
+                    .then(response => response.text())
                     .then(html => {
                         this.designFilesHtml = html;
                         this.loading = false;
@@ -39,8 +30,6 @@
                     .catch(error => {
                         console.error('Error fetching design files:', error);
                         this.loading = false;
-                        this.hasError = true;
-                        this.errorMessage = 'Gagal memuat file desain. Silakan coba lagi.';
                     });
                 },
                 init() {
@@ -58,19 +47,12 @@
                     event.preventDefault();
                     const url = event.target.href;
                     this.loading = true;
-                    this.hasError = false;
-                    this.errorMessage = '';
                     fetch(url, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    })
+                    .then(response => response.text())
                     .then(html => {
                         this.designFilesHtml = html;
                         this.loading = false;
@@ -79,8 +61,6 @@
                     .catch(error => {
                         console.error('Error fetching paginated design files:', error);
                         this.loading = false;
-                        this.hasError = true;
-                        this.errorMessage = 'Gagal memuat halaman file desain. Silakan coba lagi.';
                     });
                 }
             }"
@@ -100,15 +80,9 @@
                 Memuat...
             </div>
     
-            <!-- Error Message -->
-            <div x-show="hasError" class="p-6 text-center text-rose-600 dark:text-rose-400">
-                <p x-text="errorMessage"></p>
-            </div>
-    
             <!-- Design File List -->
-            <div x-html="designFilesHtml" x-show="!hasError">
+            <div x-html="designFilesHtml">
                 {{-- Initial load will be here, subsequent loads via AJAX --}}
                 @include('design-files._design_file_list', ['designFiles' => $designFiles])
             </div>
         </div>
-@endsection

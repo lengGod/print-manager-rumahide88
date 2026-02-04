@@ -99,15 +99,9 @@
             </div>
         </div>
     </div>
-@empty
-    <div class="p-6 md:hidden">
-        <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Tidak ada pesanan ditemukan</p>
-    </div>
-@endforelse
 
-{{-- Desktop Table View --}}
-<div class="overflow-x-auto hidden md:block">
-    @if ($orders->count() > 0)
+    <!-- Desktop Table View -->
+    <div class="overflow-x-auto hidden md:block">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50">
@@ -123,111 +117,111 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                @foreach($orders as $order)
-                    <tr>
-                        <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">
-                            {{ $order->order_number }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            {{ $order->order_date->format('d M Y') }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $order->customer->name }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            {{ $order->items->count() }}
-                            item</td>
-                        <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">Rp
-                            {{ number_format($order->final_amount, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4">
-                            @switch($order->payment_status)
-                                @case('paid')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Lunas</span>
-                                @break
+                <tr>
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">
+                        {{ $order->order_number }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $order->order_date->format('d M Y') }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $order->customer->name }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $order->items->count() }}
+                        item</td>
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">Rp
+                        {{ number_format($order->final_amount, 0, ',', '.') }}</td>
+                    <td class="px-6 py-4">
+                        @switch($order->payment_status)
+                            @case('paid')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Lunas</span>
+                            @break
 
-                                @case('partial')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Sebagian</span>
-                                @break
+                            @case('partial')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Sebagian</span>
+                            @break
 
-                                @case('unpaid')
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">Belum
-                                        Lunas</span>
-                                @break
-                            @endswitch
-                        </td>
-                        <td class="px-6 py-4">
-                            @switch($order->status)
-                                @case('Menunggu Desain')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Menunggu
-                                        Desain</span>
-                                @break
+                            @case('unpaid')
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">Belum
+                                    Lunas</span>
+                            @break
+                        @endswitch
+                    </td>
+                    <td class="px-6 py-4">
+                        @switch($order->status)
+                            @case('Menunggu Desain')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Menunggu
+                                    Desain</span>
+                            @break
 
-                                @case('Proses Desain')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">Mendesain</span>
-                                @break
+                            @case('Proses Desain')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">Mendesain</span>
+                            @break
 
-                                @case('Proses Cetak')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Mencetak</span>
-                                @break
+                            @case('Proses Cetak')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Mencetak</span>
+                            @break
 
-                                @case('Finishing')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">Finishing</span>
-                                @break
+                            @case('Finishing')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">Finishing</span>
+                            @break
 
-                                @case('Siap Diambil')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700">Siap</span>
-                                @break
+                            @case('Siap Diambil')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700">Siap</span>
+                            @break
 
-                                @case('Selesai')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Selesai</span>
-                                @break
+                            @case('Selesai')
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Selesai</span>
+                            @break
 
-                                @default
-                                    <span
-                                        class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">{{ $order->status }}</span>
-                            @endswitch
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('orders.show', $order->id) }}"
-                                    class="text-slate-400 hover:text-primary">
-                                    <span class="material-symbols-outlined text-xl">visibility</span>
-                                </a>
-                                <a href="{{ route('orders.edit', $order->id) }}"
-                                    class="text-slate-400 hover:text-amber-600">
-                                    <span class="material-symbols-outlined text-xl">edit</span>
-                                </a>
-                                <form action="{{ route('orders.destroy', $order->id) }}" method="POST"
-                                    id="delete-form-desktop-{{ $order->id }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button"
-                                        @click.prevent="$dispatch('open-confirm-modal', {
+                            @default
+                                <span
+                                    class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">{{ $order->status }}</span>
+                        @endswitch
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('orders.show', $order->id) }}"
+                                class="text-slate-400 hover:text-primary">
+                                <span class="material-symbols-outlined text-xl">visibility</span>
+                            </a>
+                            <a href="{{ route('orders.edit', $order->id) }}"
+                                class="text-slate-400 hover:text-amber-600">
+                                <span class="material-symbols-outlined text-xl">edit</span>
+                            </a>
+                            <form action="{{ route('orders.destroy', $order->id) }}" method="POST"
+                                id="delete-form-desktop-{{ $order->id }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button"
+                                    @click.prevent="$dispatch('open-confirm-modal', {
                                     title: 'Hapus Pesanan',
                                     message: 'Anda yakin ingin menghapus pesanan ini?',
                                     formId: 'delete-form-desktop-{{ $order->id }}'
                                 })"
-                                        class="text-slate-400 hover:text-rose-600">
-                                        <span class="material-symbols-outlined text-xl">delete</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
+                                    class="text-slate-400 hover:text-rose-600">
+                                    <span class="material-symbols-outlined text-xl">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
-    @else
-        <div class="p-6">
-            <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Tidak ada pesanan ditemukan</p>
-        </div>
-    @endif
-</div>
+    </div>
+@empty
+    <div class="p-6">
+        <td colspan="8" class="px-6 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+            Tidak ada pesanan ditemukan
+        </td>
+    </div>
+@endforelse
 
 <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
     <div class="text-sm text-slate-500 dark:text-slate-400">

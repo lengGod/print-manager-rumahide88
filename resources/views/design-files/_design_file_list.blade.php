@@ -56,15 +56,9 @@
             </div>
         </div>
     </div>
-@empty
-    <div class="p-6 md:hidden">
-        <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Tidak ada file desain ditemukan</p>
-    </div>
-@endforelse
 
-{{-- Desktop Table View --}}
-<div class="overflow-x-auto hidden md:block">
-    @if ($designFiles->count() > 0)
+    <!-- Desktop Table View -->
+    <div class="overflow-x-auto hidden md:block">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50">
@@ -78,70 +72,68 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                @foreach($designFiles as $file)
-                    <tr>
-                        <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">
-                            {{ $file->file_name }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            {{ $file->orderItem->order->order_number }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            {{ $file->orderItem->order->customer->name }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            {{ $file->uploadedBy->name }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            {{ $file->created_at->format('d M Y') }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold
-                                @switch($file->status)
-                                    @case('approved') bg-emerald-100 text-emerald-700 @break
-                                    @case('rejected') bg-rose-100 text-rose-700 @break
-                                    @default bg-slate-100 text-slate-700
-                                @endswitch">
-                                @switch($file->status)
-                                    @case('uploaded') Diunggah @break
-                                    @case('approved') Disetujui @break
-                                    @case('rejected') Ditolak @break
-                                    @default {{ ucfirst($file->status) }}
-                                @endswitch
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('design-files.download', $file->id) }}"
-                                    class="text-slate-400 hover:text-primary">
-                                    <span class="material-symbols-outlined text-xl">download</span>
-                                </a>
-                                <form action="{{ route('design-files.destroy', $file->id) }}" method="POST"
-                                    id="delete-form-desktop-{{ $file->id }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button"
-                                        @click.prevent="$dispatch('open-confirm-modal', {
-                                            title: 'Hapus File Desain',
-                                            message: 'Anda yakin ingin menghapus file desain ini?',
-                                            formId: 'delete-form-desktop-{{ $file->id }}'
-                                        })"
-                                        class="text-slate-400 hover:text-rose-600">
-                                        <span class="material-symbols-outlined text-xl">delete</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
+                <tr>
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-200">
+                        {{ $file->file_name }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $file->orderItem->order->order_number }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $file->orderItem->order->customer->name }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $file->uploadedBy->name }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        {{ $file->created_at->format('d M Y') }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+                            @switch($file->status)
+                                @case('approved') bg-emerald-100 text-emerald-700 @break
+                                @case('rejected') bg-rose-100 text-rose-700 @break
+                                @default bg-slate-100 text-slate-700
+                            @endswitch">
+                            @switch($file->status)
+                                @case('uploaded') Diunggah @break
+                                @case('approved') Disetujui @break
+                                @case('rejected') Ditolak @break
+                                @default {{ ucfirst($file->status) }}
+                            @endswitch
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('design-files.download', $file->id) }}"
+                                class="text-slate-400 hover:text-primary">
+                                <span class="material-symbols-outlined text-xl">download</span>
+                            </a>
+                            <form action="{{ route('design-files.destroy', $file->id) }}" method="POST"
+                                id="delete-form-desktop-{{ $file->id }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button"
+                                    @click.prevent="$dispatch('open-confirm-modal', {
+                                        title: 'Hapus File Desain',
+                                        message: 'Anda yakin ingin menghapus file desain ini?',
+                                        formId: 'delete-form-desktop-{{ $file->id }}'
+                                    })"
+                                    class="text-slate-400 hover:text-rose-600">
+                                    <span class="material-symbols-outlined text-xl">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
-    @else
-        <div class="p-6">
-            <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Tidak ada file desain ditemukan</p>
-        </div>
-    @endif
-</div>
+    </div>
+@empty
+    <div class="p-6">
+        <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Tidak ada file desain ditemukan</p>
+    </div>
+@endforelse
 
 @if ($designFiles->hasPages())
     <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
