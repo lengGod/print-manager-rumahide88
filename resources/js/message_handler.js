@@ -2,18 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = document.querySelectorAll('.message-popup');
 
     messages.forEach(message => {
-        // Add a class to trigger initial pop-up animation
         message.classList.add('show-message');
 
-        // Set a timeout to hide the message after 5 seconds (adjust as needed)
         setTimeout(() => {
             message.classList.remove('show-message');
-            message.classList.add('hide-message'); // Add a class for fade-out animation
+            message.classList.add('hide-message');
 
-            // Remove the element from the DOM after the animation completes
-            message.addEventListener('transitionend', () => {
+            // Wait for the CSS transition to complete, then remove the element
+            // A more robust approach might be a second setTimeout based on transition duration
+            const transitionDuration = parseFloat(getComputedStyle(message).transitionDuration) * 1000;
+            const animationDuration = isNaN(transitionDuration) ? 500 : transitionDuration; // Default to 500ms if not found
+
+            setTimeout(() => {
                 message.remove();
-            }, { once: true });
-        }, 5000); // 5000 milliseconds = 5 seconds
+            }, animationDuration + 50); // Add a small buffer just in case
+        }, 5000); // Initial display duration
     });
 });
