@@ -167,14 +167,38 @@
                         <span
                             class="absolute top-2 right-2 size-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                     </button>
-                    <div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-sm font-bold leading-none">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-slate-500 mt-1">
-                                {{ Auth::user()->roles->first()->display_name ?? 'Pengguna' }}</p>
-                        </div>
-                        <div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center"
-                            style='background-image: url("https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF");'>
+                    <div x-data="{ open: false }" class="relative">
+                        <button x-on:click="open = !open"
+                            class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800 focus:outline-none">
+                            <div class="text-right hidden sm:block">
+                                <p class="text-sm font-bold leading-none">{{ Auth::user()->name }}</p>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    {{ Auth::user()->roles->first()->display_name ?? 'Pengguna' }}</p>
+                            </div>
+                            <div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center"
+                                style='background-image: url("https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF");'>
+                            </div>
+                        </button>
+
+                        <div x-show="open" x-on:click.away="open = false"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg py-1 z-50">
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                Profil
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="block w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">
+                                    Keluar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
