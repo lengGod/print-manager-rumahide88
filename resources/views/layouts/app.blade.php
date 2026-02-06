@@ -154,13 +154,7 @@
                     <button x-on:click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 rounded-lg">
                         <span class="material-symbols-outlined">menu</span>
                     </button>
-                    <div class="relative hidden sm:block min-w-80">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-                        <input
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary"
-                            placeholder="Cari pesanan, pelanggan, bahan..." type="text" />
-                    </div>
+
                 </div>
                 <div class="flex items-center gap-4">
                     <button x-on:click="toggle()" type="button"
