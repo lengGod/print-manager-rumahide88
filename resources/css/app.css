@@ -9,3 +9,25 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Message Pop-up Animations */
+.message-popup {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    z-index: 1000; /* Ensure it's above other content */
+    opacity: 0;
+    transform: translateY(-100px); /* Start above the screen */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.message-popup.show-message {
+    opacity: 1;
+    transform: translateY(0); /* Slide into view */
+}
+
+.message-popup.hide-message {
+    opacity: 0;
+    transform: translateY(-100px); /* Slide up and out */
+    transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+}
