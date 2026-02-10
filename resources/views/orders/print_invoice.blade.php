@@ -161,15 +161,17 @@
                 <table class="min-w-full text-left text-xs">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="px-2 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            <th class="px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider">
                                 {{ app()->getLocale() === 'en' ? 'Product' : 'Produk' }}</th>
-                            <th class="px-2 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider text-center">
+                            <th class="px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider text-center">
                                 {{ app()->getLocale() === 'en' ? 'Qty' : 'Jml' }}</th>
-                            <th class="px-2 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider text-center">
+                            <th class="px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider text-center">
                                 {{ app()->getLocale() === 'en' ? 'Size' : 'Ukuran' }}</th>
-                            <th class="px-2 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider text-right">
-                                {{ app()->getLocale() === 'en' ? 'Price' : 'Harga' }}</th>
-                            <th class="px-2 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider text-right">
+                            <th class="px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider text-right">
+                                {{ app()->getLocale() === 'en' ? 'Price/M' : 'Harga Per Meter' }}</th>
+                            <th class="px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider text-right">
+                                {{ app()->getLocale() === 'en' ? 'Unit Price' : 'Harga Satuan' }}</th>
+                            <th class="px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider text-right">
                                 {{ app()->getLocale() === 'en' ? 'Subtotal' : 'Subtotal' }}</th>
                         </tr>
                     </thead>
@@ -199,8 +201,42 @@
                                         -
                                     @endif
                                 </td>
-                                <td class="px-3 py-2 text-right align-top text-xs">Rp
-                                    {{ number_format($item->price ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-2 py-1 text-right align-top text-[10px]">
+                                    @if (($item->product->unit ?? '') === 'meter')
+                                        Rp {{ number_format(floatval($item->productPriceOption->price_per_meter ?? ($item->price ?? 0)), 0, ',', '.') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="px-2 py-1 text-right align-top text-[10px]">
+                                    @php
+                                        $unitPrice = 0;
+                                        $pricePerMeter = floatval($item->productPriceOption->price_per_meter ?? ($item->price ?? 0));
+                                        
+                                        if (($item->product->unit ?? '') === 'meter' && !empty($item->size)) {
+                                            $sizeValue = $item->size;
+                                            $area = 0;
+
+                                            // Check if size contains 'x' for dimensions
+                                            if (str_contains($sizeValue, 'x')) {
+                                                $dimensions = explode('x', $sizeValue);
+                                                if (count($dimensions) === 2) {
+                                                    $width = floatval(trim($dimensions[0]));
+                                                    $height = floatval(trim($dimensions[1]));
+                                                    $area = ($width / 100) * ($height / 100); // Convert cm to m and calculate area
+                                                }
+                                            } elseif (is_numeric($sizeValue)) {
+                                                // If size is a single numeric value (e.g., length in cm for linear meter)
+                                                $area = floatval($sizeValue) / 100; // Convert cm to meter
+                                            }
+                                            
+                                            $unitPrice = $pricePerMeter * $area;
+                                        } else {
+                                            $unitPrice = floatval($item->productPriceOption->price ?? ($item->price ?? 0));
+                                        }
+                                    @endphp
+                                    Rp {{ number_format($unitPrice, 0, ',', '.') }}
+                                </td>
                                 <td class="px-3 py-2 text-right align-top text-xs">Rp
                                     {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}
                                 </td>
