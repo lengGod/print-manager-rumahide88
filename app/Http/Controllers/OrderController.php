@@ -374,7 +374,7 @@ class OrderController extends Controller
 
     public function invoice(Request $request, Order $order)
     {
-        $order->load('customer', 'items.product', 'items.productPriceOption');
+        $order->load('customer', 'items.product');
 
         // Set the locale for translation within the print blade
         app()->setLocale($request->query('lang') === 'en' ? 'en' : 'id');
