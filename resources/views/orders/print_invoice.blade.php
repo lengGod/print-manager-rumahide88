@@ -184,7 +184,8 @@
                         @foreach ($order->items ?? [] as $item)
                             <tr class="hover:bg-gray-50">
                                 <td class="px-3 py-2 align-top">
-                                    <p class="font-medium text-gray-800 text-xs">{{ $item->product->name ?? '' }}</p>
+                                    <p class="font-medium text-gray-800 text-[8px]">{{ $item->product->name ?? '' }}
+                                    </p>
                                     @php
                                         $specifications = json_decode($item->specifications ?? '[]', true);
                                     @endphp
@@ -198,15 +199,16 @@
                                         </ul>
                                     @endif
                                 </td>
-                                <td class="px-3 py-2 text-center align-top text-xs">{{ $item->quantity ?? '' }}</td>
-                                <td class="px-3 py-2 text-center align-top text-xs">
+                                <td class="px-3 py-2 text-center align-top text-[8px]">{{ $item->quantity ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 text-center align-top text-[8px]">
                                     @if (($item->product->unit ?? '') === 'meter' && ($item->size ?? ''))
                                         {{ $item->size }} cm
                                     @else
                                         -
                                     @endif
                                 </td>
-                                <td class="px-2 py-1 text-right align-top text-xs">
+                                <td class="px-2 py-1 text-right align-top text-[8px]">
                                     @if (($item->product->unit ?? '') === 'meter')
                                         Rp
                                         {{ number_format(floatval($item->productPriceOption->price_per_meter ?? ($item->price ?? 0)), 0, ',', '.') }}
@@ -214,7 +216,7 @@
                                         -
                                     @endif
                                 </td>
-                                <td class="px-2 py-1 text-right align-top text-xs">
+                                <td class="px-2 py-1 text-right align-top text-[8px]">
                                     @php
                                         $unitPrice = 0;
                                         $pricePerMeter = floatval(
@@ -247,7 +249,7 @@
                                     @endphp
                                     Rp {{ number_format($unitPrice, 0, ',', '.') }}
                                 </td>
-                                <td class="px-3 py-2 text-right align-top text-xs">Rp
+                                <td class="px-3 py-2 text-right align-top text-[8px]">Rp
                                     {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}
                                 </td>
                             </tr>
