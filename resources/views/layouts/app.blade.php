@@ -42,6 +42,7 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
+    <link rel="icon" href="{{ asset('assets/logo88.jpeg') }}" type="image/jpeg">
     @stack('styles')
 </head>
 
