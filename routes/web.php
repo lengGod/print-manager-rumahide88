@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('orders', OrderController::class);
     Route::post('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
+    Route::get('/orders/{order}/thermal-invoice', [OrderController::class, 'thermalInvoice'])->name('orders.thermal-invoice');
 
     // Design Files
     Route::resource('design-files', DesignFileController::class)->except(['create', 'store']);

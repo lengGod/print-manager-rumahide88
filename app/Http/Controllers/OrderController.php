@@ -381,4 +381,10 @@ class OrderController extends Controller
 
         return view('orders.print_invoice', compact('order'));
     }
+
+    public function thermalInvoice(Order $order)
+    {
+        $order->load('customer', 'items.product', 'items.productPriceOption');
+        return view('orders.print_58mm', compact('order'));
+    }
 }

@@ -56,6 +56,9 @@
                             <a href="{{ route('orders.invoice', ['order' => $order->id, 'lang' => 'en']) }}" target="_blank"
                                 class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1"
                                 id="menu-item-1">Invoice (EN)</a>
+                            <a href="{{ route('orders.thermal-invoice', $order->id) }}" target="_blank"
+                                class="text-gray-700 block px-4 py-2 text-sm border-t border-gray-100" role="menuitem" tabindex="-1"
+                                id="menu-item-2">Struk (58mm)</a>
                         </div>
                     </div>
                 </div>
