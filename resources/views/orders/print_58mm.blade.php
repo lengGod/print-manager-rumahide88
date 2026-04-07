@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Struk #{{ $order->order_number }}</title>
 
     <style>
@@ -15,29 +16,27 @@
         * {
             box-sizing: border-box;
             -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
         }
 
         html,
         body {
             margin: 0;
             padding: 0;
-            width: 58mm;
             background: #fff;
-        }
-
-        body {
             font-family: Arial, sans-serif;
             font-size: 11px;
             line-height: 1.3;
             color: #000;
+            display: flex;
+            justify-content: center;
         }
 
         .print-wrapper {
-            width: 58mm;
-            padding: 2mm 3mm;
-            margin: 0 auto;
+            width: 54mm;
+            padding: 2mm;
         }
+
+        /* TEXT */
 
         .text-center {
             text-align: center;
@@ -51,15 +50,18 @@
             font-weight: bold;
         }
 
+        /* DIVIDER */
+
         .divider {
             border-top: 1px dashed #000;
             margin: 5px 0;
         }
 
+        /* HEADER */
+
         .header h1 {
-            font-size: 16px;
+            font-size: 15px;
             margin: 0;
-            text-transform: uppercase;
         }
 
         .header p {
@@ -67,9 +69,11 @@
             font-size: 10px;
         }
 
+        /* INFO */
+
         .info {
-            margin: 6px 0;
             font-size: 10px;
+            margin: 6px 0;
         }
 
         .info table {
@@ -80,9 +84,7 @@
             padding: 1px 0;
         }
 
-        /* ====================== */
-        /* TABLE ITEMS (FIX RAPI) */
-        /* ====================== */
+        /* ITEMS TABLE */
 
         .items-table {
             width: 100%;
@@ -91,24 +93,17 @@
             margin: 6px 0;
         }
 
-        .items-table th,
+        .items-table th {
+            border-bottom: 1px solid #000;
+            font-size: 10px;
+            padding-bottom: 3px;
+        }
+
         .items-table td {
             font-size: 10px;
             padding: 3px 0;
             vertical-align: top;
-            word-wrap: break-word;
-        }
-
-        .items-table th {
-            border-bottom: 1px solid #000;
-        }
-
-        .items-table tbody tr {
-            border-bottom: 1px dotted #aaa;
-        }
-
-        .items-table tbody tr:last-child {
-            border-bottom: none;
+            word-break: break-word;
         }
 
         .col-item {
@@ -126,7 +121,7 @@
             text-align: right;
         }
 
-        /* ====================== */
+        /* TOTAL */
 
         .totals {
             margin-top: 5px;
@@ -135,14 +130,22 @@
         .totals-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3px;
             font-size: 11px;
+            margin-bottom: 2px;
         }
 
+        .totals-row.bold {
+            font-weight: bold;
+        }
+
+        /* FOOTER */
+
         .footer {
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 10px;
         }
+
+        /* PRINT */
 
         @media print {
 
@@ -152,32 +155,30 @@
 
             html,
             body {
-                width: 58mm;
+                display: block;
             }
 
             .print-wrapper {
-                width: 58mm;
-                padding: 1mm 2mm;
+                margin: auto;
             }
 
         }
+
+        /* BUTTON */
 
         .no-print {
             text-align: center;
             padding: 15px;
             background: #f4f4f4;
-            border-bottom: 1px solid #ddd;
         }
 
         .btn {
-            display: inline-block;
             padding: 8px 16px;
             background: #2563eb;
-            color: white;
-            text-decoration: none;
+            color: #fff;
+            border: none;
             border-radius: 4px;
             font-weight: bold;
-            border: none;
             cursor: pointer;
         }
 
@@ -194,7 +195,6 @@
         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-secondary">Kembali</a>
     </div>
 
-
     <div class="print-wrapper">
 
         <div class="header text-center">
@@ -207,8 +207,9 @@
 
         <div class="info">
             <table>
+
                 <tr>
-                    <td width="35%">No. Order</td>
+                    <td width="35%">No Order</td>
                     <td>: #{{ $order->order_number }}</td>
                 </tr>
 
@@ -239,13 +240,12 @@
 
         <div class="divider"></div>
 
-
         <table class="items-table">
 
             <thead>
                 <tr>
                     <th class="col-item">Item</th>
-                    <th class="col-qty">Qty</th>
+                    <th class="col-qty">Jml</th>
                     <th class="col-total">Total</th>
                 </tr>
             </thead>
@@ -293,8 +293,8 @@
                 @endforeach
 
             </tbody>
-        </table>
 
+        </table>
 
         <div class="divider"></div>
 
@@ -310,8 +310,7 @@
                 <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
             </div>
 
-            <div class="totals-row font-bold"
-                style="font-size:12px;border-top:1px solid #000;padding-top:3px;margin-top:3px;">
+            <div class="totals-row bold" style="border-top:1px solid #000;padding-top:3px;">
                 <span>Grand Total</span>
                 <span>Rp {{ number_format($order->final_amount, 0, ',', '.') }}</span>
             </div>
@@ -321,47 +320,39 @@
                 <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
             </div>
 
-            <div class="totals-row font-bold">
-                <span>Sisa Tagihan</span>
+            <div class="totals-row bold">
+                <span>Sisa</span>
                 <span>Rp {{ number_format($order->final_amount - $order->paid_amount, 0, ',', '.') }}</span>
             </div>
 
         </div>
 
-
         <div class="divider"></div>
 
         <div class="info">
-
-            <p class="font-bold">Info Pembayaran:</p>
+            <p class="font-bold">Info Pembayaran</p>
             <p>BCA: 2920636392</p>
             <p>BRI: 581601016483531</p>
-            <p>a.n. Ratih Sulastri Ningsih</p>
-
+            <p>a.n Ratih Sulastri Ningsih</p>
         </div>
-
 
         @if ($order->notes)
             <div class="divider"></div>
 
             <div class="info">
-                <p class="font-bold">Catatan:</p>
+                <p class="font-bold">Catatan</p>
                 <p>{{ $order->notes }}</p>
             </div>
         @endif
 
-
         <div class="divider"></div>
 
         <div class="footer text-center">
-
             <p class="font-bold">TERIMA KASIH</p>
             <p>Pesanan Anda Sedang Diproses</p>
-
-            <p style="font-size:8px;margin-top:5px;">
+            <p style="font-size:8px;margin-top:4px;">
                 {{ date('d/m/Y H:i:s') }}
             </p>
-
         </div>
 
     </div>
