@@ -245,7 +245,7 @@
             <thead>
                 <tr>
                     <th class="col-item">Item</th>
-                    <th class="col-qty">qty</th>
+                    <th class="col-qty">Qty</th>
                     <th class="col-total">Total</th>
                 </tr>
             </thead>
