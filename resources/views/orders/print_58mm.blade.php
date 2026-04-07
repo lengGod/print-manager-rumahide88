@@ -1,161 +1,302 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk #{{ $order->order_number }}</title>
     <style>
         @page {
+            size: 58mm auto;
             margin: 0;
         }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 58mm;
+            background-color: #fff;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
             font-size: 11px;
-            line-height: 1.4;
-            width: 58mm;
-            margin: 0 auto;
-            padding: 5mm 2mm;
+            line-height: 1.3;
             color: #000;
-            background-color: #fff;
         }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
-        .divider { border-top: 1px dashed #000; margin: 5px 0; }
-        
-        .header h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
-        .header p { margin: 2px 0; font-size: 10px; }
-        
-        .info { margin: 10px 0; font-size: 10px; }
-        .info table { width: 100%; border: none; }
-        .info td { padding: 1px 0; }
 
-        .items-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-        .items-table th { border-bottom: 1px solid #000; text-align: left; padding-bottom: 5px; font-size: 10px; }
-        .items-table td { padding: 5px 0; vertical-align: top; font-size: 10px; }
-        
-        .totals { margin-top: 5px; }
-        .totals-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
-        
-        .footer { margin-top: 15px; font-size: 10px; }
-        
+        .print-wrapper {
+            width: 58mm;
+            padding: 2mm 3mm;
+            margin: 0 auto;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin: 1px 0;
+            font-size: 10px;
+        }
+
+        .info {
+            margin: 8px 0;
+            font-size: 10px;
+        }
+
+        .info table {
+            width: 100%;
+            border: none;
+        }
+
+        .info td {
+            padding: 1px 0;
+            vertical-align: top;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        .items-table th {
+            border-bottom: 1px solid #000;
+            padding-bottom: 3px;
+            font-size: 10px;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 5px 0;
+            vertical-align: top;
+            font-size: 10px;
+        }
+
+        .col-item { width: 45%; }
+        .col-qty { width: 20%; text-align: center; }
+        .col-total { width: 35%; text-align: right; }
+
+        .totals {
+            margin-top: 5px;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 11px;
+        }
+
+        .footer {
+            margin-top: 10px;
+            font-size: 10px;
+        }
+
         @media print {
-            .no-print { display: none; }
-            body { width: 58mm; padding: 0; margin: 0; }
+            .no-print {
+                display: none !important;
+            }
+
+            html,
+            body {
+                width: 58mm;
+            }
+
+            .print-wrapper {
+                width: 58mm;
+                padding: 1mm 2mm;
+                /* Reduced padding for print to maximize width */
+            }
         }
 
         .no-print {
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             background: #f4f4f4;
             border-bottom: 1px solid #ddd;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
         }
+
         .btn {
             display: inline-block;
             padding: 8px 16px;
             background: #2563eb;
-            color: #white;
+            color: white;
             text-decoration: none;
             border-radius: 4px;
             font-weight: bold;
             border: none;
             cursor: pointer;
             font-size: 14px;
-            color: white;
         }
-        .btn-secondary { background: #64748b; }
+
+        .btn-secondary {
+            background: #64748b;
+        }
     </style>
 </head>
+
 <body onload="window.print()">
     <div class="no-print">
         <button onclick="window.print()" class="btn">Cetak Sekarang</button>
         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-secondary">Kembali</a>
     </div>
 
-    <div class="header text-center">
-        <h1>RumahIde88</h1>
-        <p>Jl. Kamboja No.4, Enggal, Bandar Lampung</p>
-        <p>Email: rumahide88@gmail.com</p>
-    </div>
+    <div class="print-wrapper">
+        <div class="header text-center">
+            <h1>RumahIde88</h1>
+            <p>Jl. Kamboja No.4, Enggal, Bandar Lampung</p>
+            <p>Email: rumahide88@gmail.com</p>
+        </div>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <div class="info">
-        <table>
-            <tr>
-                <td width="35%">No. Order</td>
-                <td>: #{{ $order->order_number }}</td>
-            </tr>
-            <tr>
-                <td>Tanggal</td>
-                <td>: {{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y H:i') }}</td>
-            </tr>
-            <tr>
-                <td>Pelanggan</td>
-                <td>: {{ $order->customer->name }}</td>
-            </tr>
+        <div class="info">
+            <table>
+                <tr>
+                    <td width="35%">No. Order</td>
+                    <td>: #{{ $order->order_number }}</td>
+                </tr>
+                <tr>
+                    <td>Tanggal</td>
+                    <td>: {{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <td>Deadline</td>
+                    <td>: {{ \Carbon\Carbon::parse($order->deadline)->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <td>Pelanggan</td>
+                    <td>: {{ $order->customer->name }}</td>
+                </tr>
+                @if ($order->customer->phone)
+                    <tr>
+                        <td>Telepon</td>
+                        <td>: {{ $order->customer->phone }}</td>
+                    </tr>
+                @endif
+            </table>
+        </div>
+
+        <div class="divider"></div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="col-item">Item</th>
+                    <th class="col-qty">Jumlah</th>
+                    <th class="col-total">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($order->items as $item)
+                    <tr>
+                        <td class="col-item">
+                            <div class="font-bold">{{ $item->product->name }}</div>
+                            @if ($item->size)
+                                <div style="font-size: 9px;">Size: {{ $item->size }}cm</div>
+                            @endif
+                            @php
+                                $specifications = json_decode($item->specifications ?? '[]', true);
+                            @endphp
+                            @if (!empty($specifications))
+                                @foreach ($specifications as $spec)
+                                    <div style="font-size: 9px;">- {{ $spec['name'] }}: {{ $spec['value'] }}</div>
+                                @endforeach
+                            @endif
+                        </td>
+                        <td class="col-qty">{{ $item->quantity }}</td>
+                        <td class="col-total">{{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
         </table>
-    </div>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th class="text-center">Qty</th>
-                <th class="text-right">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->items as $item)
-            <tr>
-                <td>
-                    {{ $item->product->name }}
-                    @if($item->size)
-                        <br><small>Size: {{ $item->size }}cm</small>
-                    @endif
-                </td>
-                <td class="text-center">{{ $item->quantity }}</td>
-                <td class="text-right">{{ number_format($item->subtotal, 0, ',', '.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div class="divider"></div>
-
-    <div class="totals">
-        <div class="totals-row">
-            <span>Total</span>
-            <span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+        <div class="totals">
+            <div class="totals-row">
+                <span>Total</span>
+                <span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+            </div>
+            <div class="totals-row">
+                <span>Diskon</span>
+                <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
+            </div>
+            <div class="totals-row font-bold"
+                style="font-size: 12px; border-top: 1px solid #000; padding-top: 3px; margin-top: 3px;">
+                <span>Grand Total</span>
+                <span>Rp {{ number_format($order->final_amount, 0, ',', '.') }}</span>
+            </div>
+            <div class="totals-row">
+                <span>Dibayar</span>
+                <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
+            </div>
+            <div class="totals-row font-bold">
+                <span>Sisa Tagihan</span>
+                <span>Rp {{ number_format($order->final_amount - $order->paid_amount, 0, ',', '.') }}</span>
+            </div>
         </div>
-        @if($order->discount > 0)
-        <div class="totals-row">
-            <span>Diskon</span>
-            <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
+
+        <div class="divider"></div>
+
+        <div class="info" style="margin-top: 5px;">
+            <p class="font-bold" style="margin-bottom: 2px;">Info Pembayaran:</p>
+            <p>BCA: 2920636392</p>
+            <p>BRI: 581601016483531</p>
+            <p>a.n. Ratih Sulastri Ningsih</p>
         </div>
+
+        @if ($order->notes)
+            <div class="divider"></div>
+            <div class="info">
+                <p class="font-bold">Catatan:</p>
+                <p>{{ $order->notes }}</p>
+            </div>
         @endif
-        <div class="totals-row font-bold" style="font-size: 13px; border-top: 1px solid #000; padding-top: 5px;">
-            <span>Grand Total</span>
-            <span>Rp {{ number_format($order->final_amount, 0, ',', '.') }}</span>
-        </div>
-        <div class="totals-row">
-            <span>Dibayar</span>
-            <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
-        </div>
-        <div class="totals-row font-bold">
-            <span>Sisa Tagihan</span>
-            <span>Rp {{ number_format($order->final_amount - $order->paid_amount, 0, ',', '.') }}</span>
-        </div>
-    </div>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <div class="footer text-center">
-        <p class="font-bold">TERIMA KASIH</p>
-        <p>Pesanan Anda Sedang Diproses</p>
-        <p style="font-size: 8px; margin-top: 10px;">{{ date('d/m/Y H:i:s') }}</p>
+        <div class="footer text-center">
+            <p class="font-bold">TERIMA KASIH</p>
+            <p>Pesanan Anda Sedang Diproses</p>
+            <p style="font-size: 8px; margin-top: 5px;">{{ date('d/m/Y H:i:s') }}</p>
+        </div>
     </div>
 </body>
+
 </html>
