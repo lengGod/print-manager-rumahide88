@@ -59,14 +59,36 @@
 
         /* HEADER */
 
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 2mm;
+            margin-bottom: 5px;
+        }
+
+        .header-logo {
+            flex: 0 0 12mm;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: auto;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
         .header h1 {
-            font-size: 15px;
+            font-size: 13px;
             margin: 0;
+            line-height: 1.1;
         }
 
         .header p {
             margin: 1px 0;
-            font-size: 10px;
+            font-size: 9px;
+            line-height: 1.2;
         }
 
         /* INFO */
@@ -197,11 +219,15 @@
 
     <div class="print-wrapper">
 
-        <div class="header text-center">
-            <img src="{{ asset('assets/Logostruk.png') }}" alt="Logo" style="width: 40mm; height: auto; margin-bottom: 5px;">
-            <h1>RumahIde88</h1>
-            <p>Jl. Kamboja No.4, Enggal, Bandar Lampung</p>
-            <p>Email: rumahide88@gmail.com</p>
+        <div class="header">
+            <div class="header-logo">
+                <img src="{{ asset('assets/Logostruk.png') }}" alt="Logo">
+            </div>
+            <div class="header-info">
+                <h1>RumahIde88</h1>
+                <p>Jl. Kamboja No.4, Enggal, Bandar Lampung</p>
+                <p>Email: rumahide88@gmail.com</p>
+            </div>
         </div>
 
         <div class="divider"></div>
