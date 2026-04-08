@@ -198,6 +198,7 @@
     <div class="print-wrapper">
 
         <div class="header text-center">
+            <img src="{{ asset('assets/Logostruk.png') }}" alt="Logo" style="width: 40mm; height: auto; margin-bottom: 5px;">
             <h1>RumahIde88</h1>
             <p>Jl. Kamboja No.4, Enggal, Bandar Lampung</p>
             <p>Email: rumahide88@gmail.com</p>
