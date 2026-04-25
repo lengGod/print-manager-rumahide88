@@ -244,17 +244,22 @@
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-6">Status Stok Material</h2>
                 <div class="space-y-6">
                     @forelse($materials->take(4) as $material)
+                        @php
+                            $stockPercentage = $material->minimum_stock > 0
+                                ? round(($material->current_stock / ($material->minimum_stock * 2)) * 100)
+                                : ($material->current_stock > 0 ? 100 : 0);
+                        @endphp
                         <div class="space-y-2">
                             <div class="flex justify-between text-sm font-medium">
                                 <span class="text-slate-600 dark:text-slate-400">{{ $material->name }}</span>
                                 <span
                                     class="{{ $material->isLowStock() ? 'text-rose-600' : 'text-slate-900 dark:text-white' }}">
-                                    {{ round(($material->current_stock / ($material->minimum_stock * 2)) * 100) }}%
+                                    {{ $stockPercentage }}%
                                 </span>
                             </div>
                             <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
-                                <div class="{{ $material->isLowStock() ? 'bg-rose-500' : (round(($material->current_stock / ($material->minimum_stock * 2)) * 100) > 70 ? 'bg-emerald-500' : (round(($material->current_stock / ($material->minimum_stock * 2)) * 100) > 40 ? 'bg-amber-500' : 'bg-primary')) }} h-2 rounded-full"
-                                    style="width: {{ min(100, round(($material->current_stock / ($material->minimum_stock * 2)) * 100)) }}%">
+                                <div class="{{ $material->isLowStock() ? 'bg-rose-500' : ($stockPercentage > 70 ? 'bg-emerald-500' : ($stockPercentage > 40 ? 'bg-amber-500' : 'bg-primary')) }} h-2 rounded-full"
+                                    style="width: {{ min(100, $stockPercentage) }}%">
                                 </div>
                             </div>
                             @if ($material->isLowStock())
