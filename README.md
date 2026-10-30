@@ -1,6 +1,6 @@
 <div align="center">
 
-#  प्रिंटManager - Sistem Manajemen Percetakan Rumah Ide 88
+#  Manager - Sistem Manajemen Percetakan Rumah Ide 88
 
 **Solusi modern dan efisien untuk mengelola alur kerja bisnis percetakan Anda dari pesanan hingga laporan.**
 
